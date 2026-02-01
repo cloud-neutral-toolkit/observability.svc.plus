@@ -1,16 +1,11 @@
-# PIGSTY - Self-Hosting PostgreSQL like a Pro
+# Observability.svc.plus
 
-[![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
-[![网站: pigsty.cc](https://img.shields.io/badge/网站-pigsty.cc-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.cc)
-[![Version: v4.0.0](https://img.shields.io/badge/version-v4.0.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/pgsty/pigsty/releases/tag/v4.0.0)
-[![License: Apache-2.0](https://img.shields.io/github/license/pgsty/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
-[![GitHub Stars](https://img.shields.io/github/stars/pgsty/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#pgsty/pigsty&Date)
-[![Extensions: 444](https://img.shields.io/badge/extensions-444-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pgext.cloud/list)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/pgsty/pigsty)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE)
+[![Base: Pigsty v4.0](https://img.shields.io/badge/Base-Pigsty_v4.0-blue)](https://github.com/pgsty/pigsty)
 
-Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **RDS** Alternative!
+**Observability.svc.plus** is an advanced observability platform based on [**Pigsty v4.0**](https://github.com/pgsty/pigsty), strictly following the **Apache 2.0** license.
 
-> "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
+> **Focus**: Monitoring & Observability (监控/可观测). Integrating **OpenTelemetry (OTel)**, with future plans to incorporate **DeepFlow Agent** and other open-source **NPM** (Network Performance Monitoring) probes.
 
 [Website](https://pigsty.io) | [ORG](https://github.com/pgsty) | [PGEXT.CLOUD](https://pgext.cloud) | [AI INFRA](https://pigsty.io/docs/piglet) | [Public Demo](https://demo.pigsty.io) | [Blog](https://pigsty.io/blog/) | [Discuss](https://github.com/orgs/pgsty/discussions) | [Support](https://pigsty.io/price) | [中文站](https://pigsty.cc/) | [博客](https://vonng.com)
 
@@ -25,14 +20,12 @@ curl -fsSL https://repo.pigsty.io/get | bash -s v4.0.0
 
 ## Features
 
-- **Extensible**:   **444** [**PG Extensions**](https://pgext.cloud/list) & **9** [**PG Kernel**](https://pigsty.io/docs/pgsql/kernel) available, with [**MsSQL**](https://pigsty.io/docs/pgsql/kernel/babelfish), [**Oracle**](https://pigsty.io/docs/pgsql/kernel/ivorysql), [**MySQL**](https://pigsty.io/docs/pgsql/kernel/openhalo), [**Mongo**](https://pigsty.io/docs/ferret) compatibility.
-- **Reliable**:     Self-healing [**HA**](https://pigsty.io/docs/concept/ha) clusters with pre-configured [**PITR**](https://pigsty.io/docs/pgsql/backup) and built-in [**ACL**](https://pigsty.io/docs/pgsql/config/acl), [**CA & SSL**](https://pigsty.io/docs/infra/admin/cert) secure best practice.
-- **Observable**:   SOTA monitoring for [**PG**](https://demo.pigsty.io/ui/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Victoria** & **Grafana** stack: [**Demo**](https://demo.pigsty.io) & [**Gallery**](https://github.com/pgsty/pigsty/wiki/Gallery).
-- **Scalable**:     Auto-routed & pooled customizable database [**Services**](https://pigsty.io/docs/pgsql/service) [**Access**](https://pigsty.io/docs/pgsql/service#access-service) with **haproxy**, **pgbouncer**, and **VIP**.
-- **Maintainable**: [**One-Cmd Deploy**](https://pigsty.io/docs/setup/install), [**Admin SOP**](https://pigsty.io/docs/pgsql/admin), **Auto-Tune**, **Local Repo**, [**IaC**](https://pigsty.io/docs/pgsql/config) and [**Vagrant**](https://pigsty.io/docs/deploy/vagrant) / [**Terraform**](https://pigsty.io/docs/deploy/terraform) support.
-- **Composable**:   Bonus [**Modules**](https://pigsty.io/docs/ref/module) such as [**Redis**](https://pigsty.io/docs/redis), [**MinIO**](https://pigsty.io/docs/minio), [**Etcd**](https://pigsty.io/docs/etcd), [**Docker**](https://pigsty.io/docs/app), [**DuckDB**](https://pigsty.io/docs/pilot/duckdb), [**FerretDB**](https://pigsty.io/docs/ferret), [**Supabase**](https://pigsty.io/docs/app/supabase), [**& More**](https://pigsty.io/docs/ref/module)!
-- **Controllable**: Self-sufficient [**Infra Closure**](https://pigsty.io/docs/infra), Cloud Neutral FOSS. Run on [**bare Linux**](https://pigsty.io/docs/ref/linux) without [**Docker & K8S**](https://vonng.com/en/db/db-in-k8s/)!
-- **Affordable**:   Self-Hosting like a [**Pro**](https://pigsty.io/price/), without the cost of [**RDS**](https://vonng.com/en/cloud/rds/). Empowering Cloud-Exit to [**save lot more!**](https://pigsty.io/docs/about/compare/)
+- **Observability First**:  SOTA monitoring for **PG** / **Infra** / **Node** based on **VictoriaMetrics**, **Grafana**, and **OpenTelemetry**.
+- **OTel Integration**:     Native support for **OpenTelemetry**, facilitating unified trace, metric, and log ingestion.
+- **Future Ready**:         Planned integration for **DeepFlow Agent** and other open-source **NPM** probes for deep network and application observability.
+- **Reliable Base**:        Inherits **Pigsty**'s robust self-healing **HA** clusters, **PITR**, and secure infrastructure.
+- **Maintainable**:         **One-Cmd Deploy**, **IaC** support, and easy customization.
+- **Controllable**:         Self-sufficient Cloud Neutral FOSS. Run on **bare Linux**.
 
 You can even use exotic [**PG kernel forks**](https://pigsty.io/docs/pgsql/kernel) as an in-place replacement and wrap it as a full RDS service: 
 
