@@ -13,8 +13,21 @@
 
 Pigsty scales from [**laptop**](https://svc.plus/docs/setup) to [**datacenter**](https://svc.plus/docs/deploy). Enterprise-grade. Developer-friendly. [**Get Started**](https://svc.plus/docs/setup/install) with the latest [**v4.0.0**](https://github.com/pgsty/pigsty/releases/tag/v4.0.0-c1):
 
+## 🚀 快速开始
+
+### 一键安装 (默认)
+默认安装最新稳定版 , 默认使用当前主机名作为域名
+
 ```bash
-curl -fsSL https://repo.pigsty.io/get | bash -s v4.0.0
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh | bash
+```
+
+### 指定版本与域名 (安装建议)
+
+```bash
+# bash -s -- <版本> <域名>
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh \
+  | bash -s --  observability.svc.plus
 ```
 
 
