@@ -2,7 +2,7 @@
 	# debug
 }
 
-infra.svc.plus {
+{{ infra_domain | default('observability.svc.plus') }} {
 	encode gzip zstd
 
         # ---- Alloy unified ingest endpoints ----
