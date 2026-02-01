@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import InsightWorkbench from "@/components/insight/InsightWorkbench";
 
 export default function Home() {
-  redirect("/insight");
+  return <InsightWorkbench />;
 }

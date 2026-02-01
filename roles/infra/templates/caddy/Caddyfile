@@ -24,6 +24,13 @@
         }
 
 	# -------------------------
+	# Insight Workbench
+	# -------------------------
+	handle_path /insight/* {
+		reverse_proxy 127.0.0.1:{{ workbench_port | default('8080') }}
+	}
+
+	# -------------------------
 	# Grafana: /ui/ 与 /ui/api/live/
 	# -------------------------
 	@ui path /ui/*
@@ -127,8 +134,11 @@
 	root * /www
 	file_server browse
 
+	@home path /
+	redir @home /insight 301
+
 	@zh path /zh
-	rewrite @zh /zh.html
+	redir @zh /insight 301
 
 	@pev path /pev
 	rewrite @pev /pev.html
