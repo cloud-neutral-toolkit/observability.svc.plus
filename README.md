@@ -25,9 +25,8 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
 ### 指定版本与域名 (安装建议)
 
 ```bash
-# bash -s -- <版本> <域名>
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh \
-  | bash -s --  observability.svc.plus
+| bash -s --  observability.svc.plus
 ```
 
 
