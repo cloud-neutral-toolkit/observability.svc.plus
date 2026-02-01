@@ -13,96 +13,7 @@
 
 ## 🚀 快速开始
 
-### 一键安装 (默认)
-默认安装最新稳定版 , 默认使用当前主机名作为域名
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
-```
-
-### 指定版本与域名 (安装建议)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh \
-| bash -s --  observability.svc.plus
-```
-
-
-## Features
-
-- **Observability First**:  SOTA monitoring for **PG** / **Infra** / **Node** based on **VictoriaMetrics**, **Grafana**, and **OpenTelemetry**.
-- **OTel Integration**:     Native support for **OpenTelemetry**, facilitating unified trace, metric, and log ingestion.
-- **Future Ready**:         Planned integration for **DeepFlow Agent** and other open-source **NPM** probes for deep network and application observability.
-- **Reliable Base**:        Inherits **Pigsty**'s robust self-healing **HA** clusters, **PITR**, and secure infrastructure.
-- **Maintainable**:         **One-Cmd Deploy**, **IaC** support, and easy customization.
-- **Controllable**:         Self-sufficient Cloud Neutral FOSS. Run on **bare Linux**.
-
-You can even use exotic [**PG kernel forks**](https://svc.plus/docs/pgsql/kernel) as an in-place replacement and wrap it as a full RDS service: 
-
-| Kernel                                                     | Key Feature                     | Description                                    |
-|------------------------------------------------------------|:--------------------------------|------------------------------------------------|
-| [PostgreSQL](https://svc.plus/docs/pgsql/kernel/postgres) | **Extension Overwhelming**      | Vanilla PostgreSQL with 444 extensions         |
-| [Citus](https://svc.plus/docs/pgsql/kernel/citus)         | **Horizontal Scaling**          | Distributive PostgreSQL via native extension   |
-| [WiltonDB](https://svc.plus/docs/pgsql/kernel/babelfish)  | **SQL Server Migration**        | Microsoft SQL Server wire-compatibility        |
-| [IvorySQL](https://svc.plus/docs/pgsql/kernel/ivorysql)   | **Oracle Migration**            | Oracle Grammar and PL/SQL compatible           |
-| [OpenHalo](https://svc.plus/docs/pgsql/kernel/openhalo)   | **MySQL Migration**             | MySQL wire-protocol compatibility              |
-| [Percona](https://svc.plus/docs/pgsql/kernel/percona)     | **Transparent Data Encryption** | Percona Distribution with pg_tde               |
-| [FerretDB](https://svc.plus/docs/ferret)                  | **MongoDB Migration**           | MongoDB wire-protocol compatibility            |
-| [OrioleDB](https://svc.plus/docs/pgsql/kernel/orioledbdb) | **OLTP Optimization**           | No bloat, No XID Wraparound, S3 Storage        |
-| [PolarDB](https://svc.plus/docs/pgsql/kernel/polardb)     | **Aurora flavor RAC**           | RAC, China domestic compliance                 |
-| [Supabase](https://svc.plus/docs/app/supabase)            | **Backend as Service**          | BaaS based on PostgreSQL, Firebase alternative |
-
-And gather the synergistic superpowers of all [**444+ PostgreSQL Extensions**](https://pgext.cloud/list) all together:
-
-[![ecosystem](https://github.com/user-attachments/assets/c952441e-5ff7-4acb-aace-dd3021d28622)](https://pgext.cloud)
-
-
-## Get Started
-
-[![Postgres: 18.1](https://img.shields.io/badge/PostgreSQL-18.1-%233E668F?style=flat&logo=postgresql&labelColor=3E668F&logoColor=white)](https://svc.plus/docs/pgsql)
-[![Linux](https://img.shields.io/badge/Linux-AMD64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://svc.plus/docs/node)
-[![Linux](https://img.shields.io/badge/Linux-ARM64-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://svc.plus/docs/node)
-[![EL Support: 8/9/10](https://img.shields.io/badge/EL-8/9/10-red?style=flat&logo=redhat&logoColor=red)](https://svc.plus/docs/ref/linux#el)
-[![Debian Support: 12/13](https://img.shields.io/badge/Debian-12/13-%23A81D33?style=flat&logo=debian&logoColor=%23A81D33)](https://svc.plus/docs/ref/linux#debian)
-[![Ubuntu Support: 22/24](https://img.shields.io/badge/Ubuntu-22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://svc.plus/docs/ref/linux#ubuntu)
-[![Docker Image](https://img.shields.io/badge/Docker-v4.0.0-%232496ED?style=flat&logo=docker&logoColor=white)](https://svc.plus/docs/setup/docker)
-
-[**Prepare**](https://svc.plus/docs/deploy/prepare) a fresh `x86_64` / `aarch64` node runs any [**compatible**](https://svc.plus/docs/ref/linux) **Linux** OS Distros, then [**Install**](https://svc.plus/docs/setup/install#install) **Pigsty** with:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
-```
-
-Then [**configure**](https://svc.plus/docs/concept/iac/configure) and run the [**`deploy.yml`**](https://svc.plus/docs/setup/playbook) playbook with an [**admin user**](https://svc.plus/docs/deploy/admin) (**nopass** `ssh` & `sudo`):
-
-```bash
-./configure -g    # generate config and random passwords
-./deploy.yml      # deploy everything on current node
-```
-
-Finally, you will get a pigsty [**singleton node ready**](https://svc.plus/docs/setup/install), with [**WebUI**](https://svc.plus/docs/setup/webui) on port `80/443` and [**Postgres**](https://svc.plus/docs/setup/pgsql) on port `5432`.
-
-For dev/testing purposes, you can also run Pigsty inside [**Docker**](https://svc.plus/docs/setup/docker) containers: `cd docker; make launch`
-
---------
-
-> [**Single-Node Setup**](https://svc.plus/docs/setup/install) | [**Production Deploy**](https://svc.plus/docs/deploy) | [**Offline Install**](https://svc.plus/docs/setup/offline) | [**Minimal Install**](https://svc.plus/docs/setup/slim) | [**Docker Install**](https://svc.plus/docs/setup/docker) | [**Run Supabase**](https://svc.plus/docs/app/supabase)
-
-<details><summary>Install with the pig cli</summary><br>
-
-Then you can launch pigsty with `pig sty` sub command:
-
-```bash
-curl -fsSL https://repo.pigsty.io/pig | bash # install pig
-pig sty init     # install latest pigsty src to ~/pigsty 
-pig sty conf     # auto-generate pigsty.yml config file
-pig sty deploy   # run the deploy.yml playbook
-```
-
-</details>
-
-
-## 🚀 快速开始
+## 🛠️ Server Installation
 
 ### 一键安装 (默认)
 默认安装最新稳定版 , 默认使用当前主机名作为域名
@@ -119,20 +30,6 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
   | bash -s --  observability.svc.plus
 ```
 
-</details>
-
-
-<details><summary>Clone src with git</summary><br>
-
-You can also download the pigsty source with `git`, remember to check out a specific version tag, the `main` branch is for development.
-
-```bash
-git clone https://github.com/pgsty/pigsty; cd pigsty; git checkout v4.0.0
-```
-
-</details>
-
-
 ## 🛠️ Client Agent Installation
 
 To install observability agents (Node Exporter, Process Exporter, Vector) on a client machine and send data to this platform:
@@ -142,8 +39,27 @@ To install observability agents (Node Exporter, Process Exporter, Vector) on a c
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-install.sh \
   | bash -s -- --endpoint https://infra.svc.plus/ingest/otlp
 ```
-
 > **Note**: The script automatically verifies the installation after setup.
+
+
+## Features
+
+- **Observability First**:  SOTA monitoring for **PG** / **Infra** / **Node** based on **VictoriaMetrics**, **Grafana**, and **OpenTelemetry**.
+- **OTel Integration**:     Native support for **OpenTelemetry**, facilitating unified trace, metric, and log ingestion.
+- **Future Ready**:         Planned integration for **DeepFlow Agent** and other open-source **NPM** probes for deep network and application observability.
+- **Reliable Base**:        Inherits **Pigsty**'s robust self-healing **HA** clusters, **PITR**, and secure infrastructure.
+- **Maintainable**:         **One-Cmd Deploy**, **IaC** support, and easy customization.
+- **Controllable**:         Self-sufficient Cloud Neutral FOSS. Run on **bare Linux**.
+
+
+
+--------
+
+> [**Single-Node Setup**](https://svc.plus/docs/setup/install) | [**Production Deploy**](https://svc.plus/docs/deploy) | [**Offline Install**](https://svc.plus/docs/setup/offline) | [**Minimal Install**](https://svc.plus/docs/setup/slim) | [**Docker Install**](https://svc.plus/docs/setup/docker) | [**Run Supabase**](https://svc.plus/docs/app/supabase)
+
+
+
+</details>
 
 
 
