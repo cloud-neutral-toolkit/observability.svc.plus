@@ -7,11 +7,9 @@
 
 > **Focus**: Monitoring & Observability (监控/可观测). Integrating **OpenTelemetry (OTel)**, with future plans to incorporate **DeepFlow Agent** and other open-source **NPM** (Network Performance Monitoring) probes.
 
-[Website](https://observability.svc.plus) | [ORG](https://github.com/cloud-neutral-toolkit) | [PGEXT.CLOUD](https://pgext.cloud) | [AI INFRA](https://svc.plus/docs/piglet) | [Public Demo](https://demo.pigsty.io) | [Blog](https://svc.plus/blogs/) | [Discuss](https://github.com/orgs/pgsty/discussions) | [Support](https://pigsty.io/price) | [中文站](https://pigsty.cc/) | [博客](https://vonng.com)
+[Website](https://svc.plus/services) | [Public Demo](https://svc.plus/) | [Blog](https://svc.plus/blogs) | [Support](https://www.svc.plus/support)
 
 [![banner](files/img/observability-banner.jpg)](https://observability.svc.plus)
-
-Pigsty scales from [**laptop**](https://svc.plus/docs/setup) to [**datacenter**](https://svc.plus/docs/deploy). Enterprise-grade. Developer-friendly. [**Get Started**](https://svc.plus/docs/setup/install) with the latest [**v4.0.0**](https://github.com/pgsty/pigsty/releases/tag/v4.0.0-c1):
 
 ## 🚀 快速开始
 
