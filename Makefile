@@ -1,13 +1,13 @@
 #==============================================================#
 # File      :   Makefile
-# Desc      :   pigsty shortcuts
+# Desc      :   observability shortcuts
 # Ctime     :   2019-04-13
-# Mtime     :   2026-01-27
+# Mtime     :   2026-02-01
 # Path      :   Makefile
-# License   :   Apache-2.0 @ https://pigsty.io/docs/about/license/
+# License   :   Apache-2.0 @ https://svc.plus/docs/about/license/
 # Copyright :   2018-2026  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
-# pigsty version string
+# version string
 VERSION?=v4.0.0
 
 # detect architecture
@@ -68,49 +68,27 @@ doc:
 	docs/serve
 
 #-------------------------------------------------------------#
-# (1). BOOTSTRAP  pigsty pkg & util preparedness
+#  Prepare
+#  (1). make deps    (once) Install MacOS deps with homebrew
+#  (2). make dns     (once) Write static DNS
+#  (3). make start   (once) Pull-up vm nodes and setup ssh access
+#  (4). make demo           Boot meta node same as Quick-Start
+#=============================================================#
+
+#-------------------------------------------------------------#
+# (1). BOOTSTRAP  util preparedness
 boot: bootstrap
 bootstrap:
 	./bootstrap
 
-# (2). CONFIGURE  pigsty in interactive mode
+# (2). CONFIGURE  interactive mode
 conf: configure
 configure:
 	./configure
 
-# (3). DEPLOY     pigsty on current node
+# (3). DEPLOY     install on current node
 deploy:
 	./deploy.yml
-###############################################################
-
-
-
-###############################################################
-#                        OUTLINE                              #
-###############################################################
-#  (1). Quick-Start   :   shortcuts for launching pigsty (above)
-#  (2). Download      :   shortcuts for downloading resources
-#  (3). Configure     :   shortcuts for configure pigsty
-#  (4). Install       :   shortcuts for running playbooks
-#  (5). Sandbox       :   shortcuts for manage sandbox vm nodes
-#  (6). Testing       :   shortcuts for testing features
-#  (7). Develop       :   shortcuts for dev purpose
-#  (8). Release       :   shortcuts for release and publish
-#  (9). Misc          :   shortcuts for miscellaneous tasks
-###############################################################
-
-
-
-###############################################################
-#                      2. Download                            #
-###############################################################
-# There are two things that need to be downloaded:
-#    pigsty.tgz    :   source code
-#    pkg.tgz       :   offline rpm packages (optional)
-#
-# get latest stable version to ~/pigsty
-src:
-	curl -SL https://github.com/pgsty/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz
 ###############################################################
 
 
@@ -507,7 +485,7 @@ release-dba:
 
 gd: get-dba
 get-dba:
-	curl -fsSL "https://repo.pigsty.cc/dba/$(DBA_PKG)" | tar -xzf -
+	curl -fsSL "https://repo.svc.plus/dba/$(DBA_PKG)" | tar -xzf -
 	@echo "DBA package extracted to current directory"
 
 ud: upload-dba

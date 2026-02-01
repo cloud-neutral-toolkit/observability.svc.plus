@@ -43,6 +43,8 @@
     - { role: infra          ,tags: infra      }  # setup infra components
     # node-monitor
     - { role: node_monitor   ,tags: monitor    }  # init node exporter & vector
+    # insight
+    - { role: insight        ,tags: insight    }  # setup insight workbench
 
 
 #--------------------------------------------------------------#
