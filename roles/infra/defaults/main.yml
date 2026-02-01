@@ -14,6 +14,7 @@ proxy_env: { no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*
 #infra_seq: 1                     # infra node identity, explicitly required
 infra_portal:                     # infra services exposed via portal
   home : { domain: i.pigsty }     # default home server definition
+infra_domain: infra.svc.plus
 infra_data: /data/infra           # default data path for infrastructure data
 infra_services:                   # home page navigation entries
   - { name: Metrics            ,url: '/vmetrics/vmui/'         ,desc: 'VictoriaMetrics Query UI'    ,icon: 'metrics'  ,name_cn: '指标查询' ,desc_cn: 'VictoriaMetrics 指标查询界面' }
