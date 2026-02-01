@@ -1,0 +1,141 @@
+{
+	# debug
+}
+
+infra.svc.plus {
+	encode gzip zstd
+
+        # ---- Alloy unified ingest endpoints ----
+
+        # Prometheus remote_write
+        handle_path /ingest/metrics/* {
+        	# 可选：加 basic auth / IP 白名单
+        	reverse_proxy 127.0.0.1:12345
+        }
+
+        # Loki push (expects /loki/api/v1/push)
+        handle_path /ingest/logs/* {
+        	reverse_proxy 127.0.0.1:12346
+        }
+
+        # OTLP HTTP (POST /v1/traces, /v1/metrics, /v1/logs)
+        handle_path /ingest/otlp/* {
+        	reverse_proxy 127.0.0.1:4318
+        }
+
+	# -------------------------
+	# Grafana: /ui/ 与 /ui/api/live/
+	# -------------------------
+	@ui path /ui/*
+	handle @ui {
+		reverse_proxy 127.0.0.1:3000 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up Origin {scheme}://{host}
+		}
+	}
+
+	@ui_live path /ui/api/live/*
+	handle @ui_live {
+		reverse_proxy 127.0.0.1:3000 {
+			header_up Host {host}
+		}
+	}
+
+	@ui_rewrite path_regexp ui_rewrite ^/ui/(vmetrics|vlogs|vtraces|vmalert|haproxy|alertmgr)(.*)$
+	redir @ui_rewrite /{re.ui_rewrite.1}{re.ui_rewrite.2} 301
+
+	# -------------------------
+	# Victoria* / alert / blackbox
+	# -------------------------
+	handle_path /vmetrics/* {
+		reverse_proxy 127.0.0.1:8428
+	}
+
+	handle_path /vlogs/* {
+		reverse_proxy 127.0.0.1:9428
+	}
+
+	handle_path /vtraces/* {
+		reverse_proxy 127.0.0.1:10428
+	}
+
+	handle_path /vmalert/* {
+		reverse_proxy 127.0.0.1:8880
+	}
+
+	handle_path /alertmgr/* {
+		reverse_proxy 127.0.0.1:9059
+	}
+
+	handle_path /blackbox/* {
+		reverse_proxy 127.0.0.1:9115
+	}
+
+	# -------------------------
+	# code-server: /code/
+	# -------------------------
+	handle_path /code/* {
+		reverse_proxy 127.0.0.1:8443 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up Accept-Encoding gzip
+
+			transport http {
+				read_timeout 86400s
+				write_timeout 86400s
+				dial_timeout 5s
+			}
+		}
+	}
+
+	# -------------------------
+	# jupyter lab: /jupyter/
+	# -------------------------
+	handle_path /jupyter/* {
+		reverse_proxy 127.0.0.1:8888 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+
+			transport http {
+				read_timeout 86400s
+				write_timeout 86400s
+				dial_timeout 5s
+			}
+		}
+	}
+
+	# -------------------------
+	# HAProxy admin: /haproxy/pg-meta-1/
+	# -------------------------
+	handle_path /haproxy/pg-meta-1/* {
+		reverse_proxy 10.146.0.6:9101 {
+			transport http {
+				dial_timeout 1s
+			}
+		}
+	}
+
+	# -------------------------
+	# Liveness probe (/nginx)
+	# -------------------------
+	respond /nginx "ok\n" 200
+
+	# -------------------------
+	# Static site (/www) + directory listing
+	# -------------------------
+	root * /www
+	file_server browse
+
+	@zh path /zh
+	rewrite @zh /zh.html
+
+	@pev path /pev
+	rewrite @pev /pev.html
+
+	handle_errors {
+		@404 expression {http.error.status_code} == 404
+		rewrite @404 /404.html
+		file_server
+	}
+}

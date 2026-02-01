@@ -67,7 +67,7 @@ And gather the synergistic superpowers of all [**444+ PostgreSQL Extensions**](h
 [**Prepare**](https://pigsty.io/docs/deploy/prepare) a fresh `x86_64` / `aarch64` node runs any [**compatible**](https://pigsty.io/docs/ref/linux) **Linux** OS Distros, then [**Install**](https://pigsty.io/docs/setup/install#install) **Pigsty** with:
 
 ```bash
-curl -fsSL https://repo.pigsty.io/get | bash; cd ~/pigsty;
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh | bash
 ```
 
 Then [**configure**](https://pigsty.io/docs/concept/iac/configure) and run the [**`deploy.yml`**](https://pigsty.io/docs/setup/playbook) playbook with an [**admin user**](https://pigsty.io/docs/deploy/admin) (**nopass** `ssh` & `sudo`):
@@ -99,65 +99,22 @@ pig sty deploy   # run the deploy.yml playbook
 </details>
 
 
-<details><summary>Install with get script</summary><br>
+## 🚀 快速开始
+
+### 一键安装 (默认)
+默认安装最新稳定版 , 默认使用当前主机名作为域名
 
 ```bash
-[root@pg-meta ~]# curl -fsSL https://repo.pigsty.io/get | bash -s v4.0.0
-[v4.0.0] ===========================================
-$ curl -fsSL https://repo.pigsty.io/get | bash
-[Docs] https://pigsty.io/docs
-[Demo] https://demo.pigsty.io
-[Repo] https://github.com/pgsty/pigsty
-[Download] ===========================================
-[ OK ] version = v4.0.0 (from arg)
-curl -fSL https://repo.pigsty.io/src/pigsty-v4.0.0.tgz -o /tmp/pigsty-v4.0.0.tgz
-######################################################################## 100.0%
-[ OK ] md5sums = 53cb5980f999f661fbb832d7ee2fc93a  /tmp/pigsty-v4.0.0.tgz
-[Install] ===========================================
-[WARN] os user = root , it's recommended to use a non-root sudo-able admin
-[ OK ] install = /root/pigsty, from /tmp/pigsty-v4.0.0.tgz
-
-[Bootstrap] ===========================================
-[WARN] ansible = not found, bootstrap
-bootstrap pigsty v4.0.0 begin
-[ OK ] region = china
-[ OK ] kernel  = Linux
-[ OK ] machine = x86_64
-[ OK ] package = rpm,dnf
-[ OK ] vendor = rocky (Rocky Linux)
-[ OK ] version = 10 (10.0)
-[ OK ] sudo = root ok
-[WARN] ssh = root@127.0.0.1 fixed
-[WARN] old repos = moved to /etc/yum.repos.d/backup
-[ OK ] repo file = add el10.x86_64 china upstream
-[WARN] rpm cache = updating, may take a while
-Pigsty PGSQL 10 - x86_64                                                                                                                                                                                      364 kB/s | 251 kB     00:00
-EL 10 BaseOS 10 - x86_64                                                                                                                                                                                       32 MB/s | 6.4 MB     00:00
-EL 10 AppStream 10 - x86_64                                                                                                                                                                                    11 MB/s | 2.1 MB     00:00
-EL 10 CRB 10 - x86_64                                                                                                                                                                                         1.8 MB/s | 492 kB     00:00
-EL 10 EPEL 10.0 - x86_64                                                                                                                                                                                       27 MB/s | 4.8 MB     00:00
-Metadata cache created.
-[ OK ] repo cache = created
-[ OK ] install el10 utils
-Last metadata expiration check: 0:00:02 ago on Wed 07 Jan 2026 05:58:22 PM CST.
-.....
-
-Installed:
-  ansible-2.16.14-1.el10.noarch             ansible-collection-ansible-posix-2.0.0-1.el10_0.noarch      ansible-collection-community-crypto-2.15.0-1PIGSTY.el10.noarch      ansible-collection-community-general-10.2.0-1.el10_0.noarch
-  ansible-core-1:2.16.14-1.el10.noarch      git-core-2.47.3-1.el10.x86_64                               python3-cffi-1.16.0-7.el10.x86_64                                   python3-cryptography-43.0.0-4.el10.x86_64
-  python3-jmespath-1.0.1-8.el10.noarch      python3-ply-3.11-25.el10.noarch                             python3-pycparser-2.20-16.el10.noarch                               python3-resolvelib-1.0.1-6.el10.noarch
-
-Complete!
-[ OK ] ansible = ansible [core 2.16.14]
-[ OK ] boostrap pigsty complete
-proceed with ./configure
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh | bash
 ```
 
-> HINT: To install a specific version, pass the version string as the first parameter:
->
-> ```bash
-> curl -fsSL https://repo.pigsty.io/get | bash -s v4.0.0
-> ```
+### 指定版本与域名 (安装建议)
+
+```bash
+# bash -s -- <版本> <域名>
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh \
+  | bash -s --  observability.svc.plus
+```
 
 </details>
 
