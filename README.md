@@ -133,6 +133,25 @@ git clone https://github.com/pgsty/pigsty; cd pigsty; git checkout v4.0.0
 </details>
 
 
+## 🛠️ Client Agent Installation
+
+To install observability agents (Node Exporter, Process Exporter, Vector) on a client machine and send data to this platform:
+
+```bash
+# bash -s -- --endpoint <YOUR_ENDPOINT>
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-install.sh \
+  | bash -s -- --endpoint https://infra.svc.plus/ingest/otlp
+```
+
+### Verification
+
+After installation, you can verify the status of the agents:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-verify.sh | bash
+```
+
+
 
 
 ## Architecture
