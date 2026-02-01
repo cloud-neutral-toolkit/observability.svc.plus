@@ -2,18 +2,18 @@
 #-----------------------------------------------------------------
 # INFRA_META
 #-----------------------------------------------------------------
-version: v4.0.0                   # pigsty version string
+version: v4.0.0                   # version string
 admin_ip: 10.10.10.10             # admin node ip address, overwritten by configure
 region: default                   # upstream mirror region: default,china,europe
 language: en                      # default language, en by default, could be zh
-proxy_env: { no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.pigsty,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn" }
+proxy_env: { no_proxy: "localhost,127.0.0.1,10.0.0.0/8,192.168.0.0/16,*.aliyun.com,mirrors.*,*.myqcloud.com,*.tsinghua.edu.cn" }
 
 #-----------------------------------------------------------------
 # INFRA_IDENTITY
 #-----------------------------------------------------------------
 #infra_seq: 1                     # infra node identity, explicitly required
 infra_portal:                     # infra services exposed via portal
-  home : { domain: i.pigsty }     # default home server definition
+  home : { domain: i.observability }     # default home server definition
 infra_domain: observability.svc.plus
 infra_data: /data/infra           # default data path for infrastructure data
 infra_services:                   # home page navigation entries
@@ -23,8 +23,8 @@ infra_services:                   # home page navigation entries
   - { name: Monitor Targets    ,url: '/vmetrics/targets'       ,desc: 'Prometheus Scrape Targets'   ,icon: 'target'   ,name_cn: '监控目标' ,desc_cn: 'VictoriaMetrics 监控对象列表' }
   - { name: Alert Rules        ,url: '/vmalert/vmalert/groups' ,desc: 'VMAlert alert/record Rules'  ,icon: 'alert'    ,name_cn: '告警规则' ,desc_cn: 'VMAlert 告警规则管理'         }
   - { name: Alert Manager      ,url: '/alertmgr/#/alerts'      ,desc: 'Alert Manage & Silence'      ,icon: 'alertmgr' ,name_cn: '告警管理' ,desc_cn: 'AlertManager 告警管理与屏蔽'  }
-  - { name: CA Certificate     ,url: '/ca.crt'                 ,desc: 'Self-Signed CA Certificate'  ,icon: 'lock'     ,name_cn: 'CA 证书'  ,desc_cn: 'Pigsty 自签CA根证书' }
-  - { name: Software Repo      ,url: '/pigsty'                 ,desc: 'Local YUM/APT Repository'    ,icon: 'package'  ,name_cn: '软件仓库' ,desc_cn: '本地 YUM/APT 软件源'  }
+  - { name: CA Certificate     ,url: '/ca.crt'                 ,desc: 'Self-Signed CA Certificate'  ,icon: 'lock'     ,name_cn: 'CA 证书'  ,desc_cn: '自签CA根证书' }
+  - { name: Software Repo      ,url: '/repo'                   ,desc: 'Local YUM/APT Repository'    ,icon: 'package'  ,name_cn: '软件仓库' ,desc_cn: '本地 YUM/APT 软件源'  }
   - { name: Explain Visualizer ,url: '/pev'                    ,desc: 'Postgres EXPLAIN Visualizer' ,icon: 'search'   ,name_cn: '执行计划' ,desc_cn: 'PG 执行计划可视化工具' }
 infra_extra_services: []          # extra services to be added on infra home page
 
@@ -107,7 +107,7 @@ grafana_enabled: true             # enable grafana on this infra node?
 grafana_port: 3000                # default listen port for grafana
 grafana_clean: false              # clean grafana data during init?
 grafana_admin_username: admin     # grafana admin username, `admin` by default
-grafana_admin_password: pigsty    # grafana admin password, `pigsty` by default
+grafana_admin_password: observability    # grafana admin password, `observability` by default
 grafana_auth_proxy: false         # enable grafana auth proxy?
 grafana_pgurl: ''                 # external postgres database url for grafana if given
 grafana_view_password: DBUser.Viewer # password for grafana meta pg datasource

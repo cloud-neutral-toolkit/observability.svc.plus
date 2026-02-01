@@ -1,9 +1,9 @@
 # Observability.svc.plus
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE)
-[![Base: Pigsty v4.0](https://img.shields.io/badge/Base-Pigsty_v4.0-blue)](https://github.com/pgsty/pigsty)
+[![Status: Stable](https://img.shields.io/badge/Status-Stable-blue)](https://svc.plus)
 
-**Observability.svc.plus** is an advanced observability platform based on [**Pigsty v4.0**](https://github.com/pgsty/pigsty), strictly following the **Apache 2.0** license.
+**Observability.svc.plus** is an advanced observability platform strictly following the **Apache 2.0** license.
 
 > **Focus**: Monitoring & Observability (监控/可观测). Integrating **OpenTelemetry (OTel)**, with future plans to incorporate **DeepFlow Agent** and other open-source **NPM** (Network Performance Monitoring) probes.
 
@@ -33,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
 - **Observability First**:  SOTA monitoring for **PG** / **Infra** / **Node** based on **VictoriaMetrics**, **Grafana**, and **OpenTelemetry**.
 - **OTel Integration**:     Native support for **OpenTelemetry**, facilitating unified trace, metric, and log ingestion.
 - **Future Ready**:         Planned integration for **DeepFlow Agent** and other open-source **NPM** probes for deep network and application observability.
-- **Reliable Base**:        Inherits **Pigsty**'s robust self-healing **HA** clusters, **PITR**, and secure infrastructure.
+- **Reliable Base**:        Robust self-healing **HA** clusters, **PITR**, and secure infrastructure.
 - **Maintainable**:         **One-Cmd Deploy**, **IaC** support, and easy customization.
 - **Controllable**:         Self-sufficient Cloud Neutral FOSS. Run on **bare Linux**.
 
@@ -67,7 +67,7 @@ And gather the synergistic superpowers of all [**444+ PostgreSQL Extensions**](h
 [![Ubuntu Support: 22/24](https://img.shields.io/badge/Ubuntu-22/24-%23E95420?style=flat&logo=ubuntu&logoColor=%23E95420)](https://svc.plus/docs/ref/linux#ubuntu)
 [![Docker Image](https://img.shields.io/badge/Docker-v4.0.0-%232496ED?style=flat&logo=docker&logoColor=white)](https://svc.plus/docs/setup/docker)
 
-[**Prepare**](https://svc.plus/docs/deploy/prepare) a fresh `x86_64` / `aarch64` node runs any [**compatible**](https://svc.plus/docs/ref/linux) **Linux** OS Distros, then [**Install**](https://svc.plus/docs/setup/install#install) **Pigsty** with:
+[**Prepare**](https://svc.plus/docs/deploy/prepare) a fresh `x86_64` / `aarch64` node runs any [**compatible**](https://svc.plus/docs/ref/linux) **Linux** OS Distros, then [**Install**](https://svc.plus/docs/setup/install#install) the platform with:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
@@ -80,9 +80,9 @@ Then [**configure**](https://svc.plus/docs/concept/iac/configure) and run the [*
 ./deploy.yml      # deploy everything on current node
 ```
 
-Finally, you will get a pigsty [**singleton node ready**](https://svc.plus/docs/setup/install), with [**WebUI**](https://svc.plus/docs/setup/webui) on port `80/443` and [**Postgres**](https://svc.plus/docs/setup/pgsql) on port `5432`.
+Finally, you will get a [**singleton node ready**](https://svc.plus/docs/setup/install), with [**WebUI**](https://svc.plus/docs/setup/webui) on port `80/443` and [**Postgres**](https://svc.plus/docs/setup/pgsql) on port `5432`.
 
-For dev/testing purposes, you can also run Pigsty inside [**Docker**](https://svc.plus/docs/setup/docker) containers: `cd docker; make launch`
+For dev/testing purposes, you can also run it inside [**Docker**](https://svc.plus/docs/setup/docker) containers: `cd docker; make launch`
 
 --------
 
@@ -148,27 +148,12 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
 
 
 
-## Architecture
-
-Pigsty uses a [**modular**](https://svc.plus/docs/concept/arch) design. you can [**use one or all**](https://svc.plus/docs/deploy/planning), Best of breed products. Integrated as a platform.
-
-[![board](https://pigsty.io/img/pigsty/motherboard.gif)](https://svc.plus/docs/concept/arch)
-
-[![PGSQL](https://img.shields.io/badge/PGSQL-%233E668F?style=flat&logo=postgresql&labelColor=3E668F&logoColor=white)](https://svc.plus/docs/pgsql) Self-healing PostgreSQL HA cluster powered by Patroni, Pgbouncer, PgBackrest & HAProxy
+Integrated as a platform.
 
 [![INFRA](https://img.shields.io/badge/INFRA-%23009639?style=flat&logo=nginx&labelColor=009639&logoColor=white)](https://svc.plus/docs/infra) Nginx, Local Repo, DNSMasq, and the entire Victoria & Grafana observability stack.
 
-[![NODE](https://img.shields.io/badge/NODE-%23FCC624?style=flat&logo=linux&labelColor=FCC624&logoColor=black)](https://svc.plus/docs/node) Init node name, repo, pkg, NTP, ssh, admin, tune, expose services, collect logs & metrics.
-
-[![ETCD](https://img.shields.io/badge/ETCD-%23419EDA?style=flat&logo=etcd&labelColor=419EDA&logoColor=white)](https://svc.plus/docs/etcd) Etcd cluster is used as a reliable distributive configuration store by PostgreSQL HA Agents.
-
-You can compose them freely in a declarative manner. `INFRA` & `NODE` will suffice for host monitoring.
-`ETCD` and `PGSQL` are used for HA PG clusters; Installing them on multiple nodes automatically forms HA clusters.
-
-The default [`deploy.yml`](https://github.com/pgsty/pigsty/blob/main/deploy.yml) playbook will deploy `INFRA`, `NODE`, `ETCD` & `PGSQL` on the current node.
+The default [`deploy.yml`](deploy.yml) playbook will deploy `INFRA`, `NODE`, `ETCD` & `PGSQL` on the current node.
 Which gives you an out-of-the-box PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
-
-[![pigsty-arch](https://pigsty.io/img/pigsty/arch.png)](https://svc.plus/docs/concept/arch)
 
 The node can be used as an admin controller to deploy & monitor more nodes & clusters. For example, you can install these **6** **OPTIONAL** [extra modules](https://svc.plus/docs/ref/module#extra-modules) for advanced use cases:
 
