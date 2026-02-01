@@ -17,11 +17,14 @@ VECTOR_VERSION="0.36.0"
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log_fail() { echo -e "${RED}[FAIL]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
 # Detect Architecture
 ARCH=$(uname -m)
@@ -212,6 +215,55 @@ EOF
     log_success "Vector installed and started."
 }
 
+# --- 4. Verify Installation ---
+verify_installation() {
+    echo ""
+    log_info "---------------------------------------------------"
+    log_info " Verifying Installation..."
+    log_info "---------------------------------------------------"
+
+    # Check Services
+    check_service() {
+        local service=$1
+        if systemctl is-active --quiet "$service"; then
+            log_success "Service '$service' is running"
+        else
+            log_fail "Service '$service' is NOT running"
+            systemctl status "$service" --no-pager | head -n 10
+        fi
+    }
+
+    check_service "node_exporter"
+    check_service "process_exporter"
+    check_service "vector"
+
+    # Check Ports
+    check_port() {
+        local port=$1
+        local name=$2
+        if ss -tulnA | grep -q ":$port "; then
+            log_success "Port $port ($name) is listening"
+        else
+            log_fail "Port $port ($name) is NOT listening"
+        fi
+    }
+
+    echo ""
+    log_info "Checking Ports..."
+    check_port 9100 "Node Exporter"
+    check_port 9256 "Process Exporter"
+
+    # Check Logs
+    echo ""
+    log_info "Checking Vector Logs (Last 10 lines)..."
+    if journalctl -u vector -n 20 --no-pager | grep -iE "error|fail"; then
+        log_warn "Possible errors found in Vector logs:"
+        journalctl -u vector -n 20 --no-pager | grep -iE "error|fail"
+    else
+        log_success "No recent errors found in Vector logs."
+    fi
+}
+
 # --- Check Permissions ---
 if [[ $EUID -ne 0 ]]; then
    log_error "This script must be run as root" 
@@ -222,9 +274,10 @@ fi
 install_node_exporter
 install_process_exporter
 install_vector
+verify_installation
 
 echo ""
 log_success "---------------------------------------------------"
-log_success " Agent installation complete!"
+log_success " Agent installation & verification complete!"
 log_success " Data is being pushed to: $ENDPOINT"
 log_success "---------------------------------------------------"

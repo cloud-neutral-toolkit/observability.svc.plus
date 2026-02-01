@@ -17,13 +17,13 @@
 默认安装最新稳定版 , 默认使用当前主机名作为域名
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
 ```
 
 ### 指定版本与域名 (安装建议)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh \
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh \
 | bash -s --  observability.svc.plus
 ```
 
@@ -70,7 +70,7 @@ And gather the synergistic superpowers of all [**444+ PostgreSQL Extensions**](h
 [**Prepare**](https://svc.plus/docs/deploy/prepare) a fresh `x86_64` / `aarch64` node runs any [**compatible**](https://svc.plus/docs/ref/linux) **Linux** OS Distros, then [**Install**](https://svc.plus/docs/setup/install#install) **Pigsty** with:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
 ```
 
 Then [**configure**](https://svc.plus/docs/concept/iac/configure) and run the [**`deploy.yml`**](https://svc.plus/docs/setup/playbook) playbook with an [**admin user**](https://svc.plus/docs/deploy/admin) (**nopass** `ssh` & `sudo`):
@@ -108,14 +108,14 @@ pig sty deploy   # run the deploy.yml playbook
 默认安装最新稳定版 , 默认使用当前主机名作为域名
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
 ```
 
 ### 指定版本与域名 (安装建议)
 
 ```bash
 # bash -s -- <版本> <域名>
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/install.sh \
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh \
   | bash -s --  observability.svc.plus
 ```
 
@@ -143,13 +143,7 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
   | bash -s -- --endpoint https://infra.svc.plus/ingest/otlp
 ```
 
-### Verification
-
-After installation, you can verify the status of the agents:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-verify.sh | bash
-```
+> **Note**: The script automatically verifies the installation after setup.
 
 
 
