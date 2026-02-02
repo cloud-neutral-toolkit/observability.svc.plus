@@ -8,7 +8,6 @@
   apt:
     name:
       - nodejs
-      - npm
       - build-essential
       - make
     state: present
