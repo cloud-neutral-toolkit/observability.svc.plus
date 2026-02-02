@@ -39,9 +39,9 @@
 - name: install npm dependencies
   tags: insight_build
   when: workbench_build|bool
-  npm:
-    path: "{{ workbench_dir }}"
-    registry: "{{ nodejs_registry }}"
+  shell: npm install --legacy-peer-deps
+  args:
+    chdir: "{{ workbench_dir }}"
   environment: "{{ proxy_env | default({}) }}"
 
 - name: build nextjs workbench
