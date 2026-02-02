@@ -33,7 +33,7 @@ cookie_samesite = disabled
 
 [auth.anonymous]
 enabled = true
-org_name = Main Org.
+org_name = {{ grafana_org_name | default('Pigsty') }}
 org_role = Viewer
 
 [auth.basic]
