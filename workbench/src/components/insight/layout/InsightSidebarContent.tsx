@@ -3,7 +3,7 @@
 import React from 'react'
 import { BellRing, Compass, Layers, Sparkles, LayoutDashboard, type LucideIcon, PanelLeftClose, PanelLeftOpen, EyeOff } from 'lucide-react'
 import { QueryLanguage, TopologyMode } from '../store/urlState'
-import { SidebarHeader, SidebarContent } from '@/components/layout/SidebarRoot'
+import { SidebarHeader, SidebarContent } from '../../layout/SidebarRoot'
 
 interface InsightSidebarContentProps {
     topologyMode: TopologyMode

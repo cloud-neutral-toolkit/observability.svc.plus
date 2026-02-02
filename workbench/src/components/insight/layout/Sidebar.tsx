@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { QueryLanguage, TopologyMode } from '../store/urlState'
-import { SidebarRoot, SidebarHeader, SidebarContent } from '@/components/layout/SidebarRoot'
+import { SidebarRoot, SidebarHeader, SidebarContent } from '../../layout/SidebarRoot'
 import { InsightSidebarContent } from './InsightSidebarContent'
 
 interface SidebarProps {

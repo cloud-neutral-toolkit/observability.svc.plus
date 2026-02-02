@@ -10,7 +10,15 @@
 VERSION="main"
 DOMAIN="$(hostname)"
 
-# Smart parameter parsing
+# Handle flags
+AUTO_YES=false
+while [[ "$1" =~ ^- ]]; do
+    case "$1" in
+        -y|--yes) AUTO_YES=true; shift ;;
+        *) break ;;
+    esac
+done
+
 if [[ -n "$1" ]]; then
     # if $1 looks like a version/branch (main, master, v1.0, etc.)
     if [[ "$1" == "main" || "$1" == "master" || "$1" == v[0-9]* ]]; then
@@ -48,8 +56,12 @@ fi
 # Clone or Update
 if [ -d "${INSTALL_DIR}" ]; then
     echo -e "${BLUE}Directory ${INSTALL_DIR} already exists.${NC}"
-    read -p "Overwrite? (y/N) " -n 1 -r
-    echo
+    if [ "$AUTO_YES" = true ]; then
+        REPLY="y"
+    else
+        read -p "Overwrite? (y/N) " -n 1 -r
+        echo
+    fi
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         rm -rf "${INSTALL_DIR}"
         if ! git clone -b "${VERSION}" "${REPO_URL}" "${INSTALL_DIR}"; then
