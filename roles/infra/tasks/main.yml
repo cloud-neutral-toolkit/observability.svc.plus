@@ -32,8 +32,8 @@
 #--------------------------------------------------------------#
 # issue /etc/pki/infra.{key,crt} for prometheus & patronictl
 # infra_cert_issue, infra_cert_copy
-- import_tasks: cert.yml
-  tags: infra_cert
+# - import_tasks: cert.yml
+#   tags: infra_cert
 
 #--------------------------------------------------------------#
 # 6. DNS                                                   [dns]
