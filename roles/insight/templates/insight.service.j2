@@ -9,7 +9,7 @@ Group={{ workbench_group }}
 WorkingDirectory={{ workbench_dir }}
 Environment=PORT={{ workbench_port }}
 Environment=NODE_ENV=production
-ExecStart=/usr/bin/npm start
+ExecStart=/usr/bin/npx next start -p {{ workbench_port }}
 Restart=always
 RestartSec=10
 

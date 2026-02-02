@@ -39,10 +39,14 @@
 - name: install npm dependencies
   tags: insight_build
   when: workbench_build|bool
-  shell: npm install --legacy-peer-deps
+  shell: npm install --legacy-peer-deps --no-audit --prefer-offline
   args:
     chdir: "{{ workbench_dir }}"
-  environment: "{{ proxy_env | default({}) }}"
+  environment:
+    NODE_OPTIONS: "--max-old-space-size=1024"
+    {{ proxy_env | default({}) }}
+  async: 1800
+  poll: 10
 
 - name: build nextjs workbench
   tags: insight_build
@@ -54,6 +58,10 @@
   environment:
     PATH: "/usr/local/bin:/usr/bin:/bin"
     NODE_ENV: production
+    NODE_OPTIONS: "--max-old-space-size=1536"
+    {{ proxy_env | default({}) }}
+  async: 1800
+  poll: 10
 
 - name: render insight systemd service
   tags: insight_config
