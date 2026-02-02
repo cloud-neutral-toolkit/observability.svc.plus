@@ -42,9 +42,7 @@
   shell: npm install --legacy-peer-deps --no-audit --prefer-offline
   args:
     chdir: "{{ workbench_dir }}"
-  environment:
-    NODE_OPTIONS: "--max-old-space-size=1024"
-    {{ proxy_env | default({}) }}
+  environment: "{{ (proxy_env | default({})) | combine({'NODE_OPTIONS': '--max-old-space-size=1024'}) }}"
   async: 1800
   poll: 10
 
@@ -55,11 +53,7 @@
   args:
     chdir: "{{ workbench_dir }}"
     executable: /bin/bash
-  environment:
-    PATH: "/usr/local/bin:/usr/bin:/bin"
-    NODE_ENV: production
-    NODE_OPTIONS: "--max-old-space-size=1536"
-    {{ proxy_env | default({}) }}
+  environment: "{{ (proxy_env | default({})) | combine({'PATH': '/usr/local/bin:/usr/bin:/bin', 'NODE_ENV': 'production', 'NODE_OPTIONS': '--max-old-space-size=1536'}) }}"
   async: 1800
   poll: 10
 
