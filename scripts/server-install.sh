@@ -10,8 +10,12 @@
 VERSION="main"
 DOMAIN="$(hostname)"
 
-# Handle flags
+# Auto-detect non-interactive mode
 AUTO_YES=false
+if [[ ! -t 0 ]]; then
+    AUTO_YES=true
+fi
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -y|--yes) AUTO_YES=true; shift ;;
@@ -139,13 +143,13 @@ fi
 echo -e "\n${GREEN}Successfully deployed observability.svc.plus!${NC}"
 echo -e "----------------------------------------------------------------"
 echo -e "URL             :  https://${DOMAIN}"
-echo -e "Insight         :  https://${DOMAIN}/insight"
+echo -e "Dashboard       :  https://${DOMAIN}/insight"
 echo -e "Grafana         :  https://${DOMAIN}/grafana"
 echo -e "User            :  admin"
 echo -e "Password        :  pigsty"
 echo -e "----------------------------------------------------------------"
-echo -e "OTLP (gRPC)     :  http://${DOMAIN}:4317"
-echo -e "OTLP (HTTP)     :  http://${DOMAIN}:4318"
+echo -e "Otel_endpoint   :  http://${DOMAIN}:4317 (gRPC)"
+echo -e "Otel_endpoint   :  http://${DOMAIN}:4318 (HTTP)"
 echo -e "VictoriaMetrics :  http://${DOMAIN}:8428"
 echo -e "----------------------------------------------------------------"
 echo -e "查询 (PromQL)   :  http://${DOMAIN}:8428/api/v1/query"
