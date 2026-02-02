@@ -1,7 +1,7 @@
 'use client'
 
 import { PrometheusResponse } from '../../insight/services/adapters/prometheus'
-import { formatNumber } from '@lib/format'
+import { formatNumber } from '../../../lib/format'
 
 interface MetricsTableProps {
   series: PrometheusResponse[]

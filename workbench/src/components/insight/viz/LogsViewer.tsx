@@ -1,7 +1,7 @@
 'use client'
 
 import { LogEntry } from '../../insight/services/adapters/logs'
-import { getLogLevelColor } from '@lib/format'
+import { getLogLevelColor } from '../../../lib/format'
 
 interface LogsViewerProps {
   logs: LogEntry[]

@@ -1,7 +1,7 @@
 'use client'
 
 import { InsightState } from '../../insight/store/urlState'
-import { formatDuration } from '@lib/format'
+import { formatDuration } from '../../../lib/format'
 
 interface TimeRangePickerProps {
   state: InsightState

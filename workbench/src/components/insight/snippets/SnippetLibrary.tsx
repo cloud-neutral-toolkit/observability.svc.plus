@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { InsightState } from '../../insight/store/urlState'
-import { canAccessSnippet } from '@lib/rbac'
+import { canAccessSnippet } from '../../../lib/rbac'
 
 interface Snippet {
   name: string
