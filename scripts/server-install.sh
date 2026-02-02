@@ -12,10 +12,13 @@ DOMAIN="$(hostname)"
 
 # Handle flags
 AUTO_YES=false
-if [[ "$1" == "-y" || "$1" == "--yes" ]]; then
-    AUTO_YES=true
-    shift
-fi
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -y|--yes) AUTO_YES=true; shift ;;
+        -*) shift ;; # ignore other flags
+        *) break ;;
+    esac
+done
 
 if [[ -n "$1" ]]; then
     # if $1 looks like a version/branch (main, master, v1.0, etc.)
@@ -118,8 +121,13 @@ fi
 
 # Run Configure automatically
 if [ -f "./configure" ]; then
-    echo -e "${BLUE}Running configure (forcing 127.0.0.1)...${NC}"
+    echo -e "${BLUE}Running configure...${NC}"
     ./configure -n -i 127.0.0.1 || { echo -e "${RED}Error: Configure failed${NC}"; exit 1; }
+    # Reinforced IP safety check for inventory
+    if [ -f "pigsty.yml" ]; then
+         echo -e "${BLUE}Reinforcing 127.0.0.1 in pigsty.yml...${NC}"
+         sed -i 's/10.146.0.6/127.0.0.1/g' pigsty.yml
+    fi
 fi
 
 echo -e "${GREEN}Installation and configuration successful!${NC}"
