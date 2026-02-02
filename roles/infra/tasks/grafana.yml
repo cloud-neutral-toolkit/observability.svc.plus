@@ -101,7 +101,7 @@
       tags: dashboard_init
       ignore_errors: true
       vars:
-        endpoint: "http://127.0.0.1:{{ grafana_port|default(3000) }}/ui"
+        endpoint: "http://127.0.0.1:{{ grafana_port | default(3000) }}/grafana"
         username: "{{ grafana_admin_username|default('admin') }}"
         password: "{{ grafana_admin_password|default('pigsty') }}"
       shell: |

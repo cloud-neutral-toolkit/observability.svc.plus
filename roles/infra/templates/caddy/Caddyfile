@@ -32,9 +32,9 @@
 	}
 
 	# -------------------------
-	# Grafana: /ui/ 与 /ui/api/live/
+	# Grafana: /grafana/ 与 /grafana/api/live/
 	# -------------------------
-	@ui path /ui/*
+	@ui path /grafana/*
 	handle @ui {
 		reverse_proxy 127.0.0.1:3000 {
 			header_up Host {host}
@@ -43,14 +43,14 @@
 		}
 	}
 
-	@ui_live path /ui/api/live/*
+	@ui_live path /grafana/api/live/*
 	handle @ui_live {
 		reverse_proxy 127.0.0.1:3000 {
 			header_up Host {host}
 		}
 	}
 
-	@ui_rewrite path_regexp ui_rewrite ^/ui/(vmetrics|vlogs|vtraces|vmalert|haproxy|alertmgr)(.*)$
+	@ui_rewrite path_regexp ui_rewrite ^/grafana/(vmetrics|vlogs|vtraces|vmalert|haproxy|alertmgr)(.*)$
 	redir @ui_rewrite /{re.ui_rewrite.1}{re.ui_rewrite.2} 301
 
 	# -------------------------
