@@ -7,9 +7,8 @@
   },
   "scripts": {
     "dev": "bash scripts/Dev-MCP-Server.sh && next dev --turbo",
-    "prebuild": "bash scripts/prebuild.sh",
     "build": "next build",
-    "build:static": "npm run prebuild && next build",
+    "build:static": "next build",
     "start": "node ./scripts/start.js",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
