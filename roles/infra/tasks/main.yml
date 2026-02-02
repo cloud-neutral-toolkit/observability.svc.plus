@@ -52,6 +52,14 @@
   tags: nginx
 
 #--------------------------------------------------------------#
+# 8. Caddy                                               [caddy]
+#--------------------------------------------------------------#
+# setup caddy as the ingress controller
+- import_tasks: caddy.yml
+  when: caddy_enabled|bool
+  tags: caddy
+
+#--------------------------------------------------------------#
 # 8. Victoria                                         [victoria]
 #--------------------------------------------------------------#
 # vmetrics_config, vmetrics_launch, vlogs_config, vlogs_launch
