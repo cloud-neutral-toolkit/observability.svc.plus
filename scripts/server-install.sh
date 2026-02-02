@@ -106,8 +106,13 @@ else
     echo -e "${RED}Warning: Primary setup scripts not found! Check repo content.${NC}"
 fi
 
-echo -e "${GREEN}Installation successful!${NC}"
+# Run Configure automatically
+if [ -f "./configure" ]; then
+    echo -e "${BLUE}Running configure (auto-detecting IP)...${NC}"
+    ./configure -n || { echo -e "${RED}Error: Configure failed${NC}"; exit 1; }
+fi
+
+echo -e "${GREEN}Installation and configuration successful!${NC}"
 echo -e "Next steps:"
 echo -e "  cd ${INSTALL_DIR}"
-echo -e "  ./configure # Generate config"
-echo -e "  ./deploy.yml # Install"
+echo -e "  ./deploy.yml # Run this to start the actual deployment"
