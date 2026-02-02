@@ -5,11 +5,10 @@
 
 - name: install nodejs and build tools
   tags: insight_pkg
-  package:
     name:
       - nodejs
       - npm
-      - gcc-c++
+      - g++
       - make
     state: present
 
