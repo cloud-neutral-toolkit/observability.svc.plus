@@ -28,7 +28,7 @@
 	# -------------------------
 	redir /insight /insight/
 	handle_path /insight/* {
-		reverse_proxy 127.0.0.1:{{ workbench_port | default('8080') }}
+		reverse_proxy 127.0.0.1:{{ workbench_port | default('8082') }}
 	}
 
 	# -------------------------

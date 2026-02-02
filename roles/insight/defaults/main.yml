@@ -3,7 +3,7 @@
 # INSIGHT - Observability Workbench
 #-----------------------------------------------------------------
 insight_enabled: true             # enable insight workbench?
-workbench_port: 8080              # workbench listen port
+workbench_port: 8082              # workbench listen port
 workbench_dir: /data/workbench    # workbench deployment directory
 workbench_user: "{{ node_user | default('root') }}"
 workbench_group: "{{ node_user | default('root') }}"
