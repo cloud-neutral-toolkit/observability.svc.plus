@@ -5,6 +5,7 @@
 
 - name: install nodejs and build tools
   tags: insight_pkg
+  package:
     name:
       - nodejs
       - npm
