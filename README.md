@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green.svg)](LICENSE)
 [![Status: Stable](https://img.shields.io/badge/Status-Stable-blue)](https://svc.plus)
 
-**Observability.svc.plus** is an advanced observability platform strictly following the **Apache 2.0** license.
+**Observability.svc.plus** is an observability solutions strictly following the **Apache 2.0** license.
 
 > **Focus**: Monitoring & Observability (监控/可观测). Integrating **OpenTelemetry (OTel)**, with future plans to incorporate **DeepFlow Agent** and other open-source **NPM** (Network Performance Monitoring) probes.
 
