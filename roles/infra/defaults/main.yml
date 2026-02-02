@@ -18,6 +18,7 @@ infra_domain: observability.svc.plus
 infra_data: /data/infra           # default data path for infrastructure data
 infra_services:                   # home page navigation entries
   - { name: Metrics            ,url: '/vmetrics/vmui/'         ,desc: 'VictoriaMetrics Query UI'    ,icon: 'metrics'  ,name_cn: '指标查询' ,desc_cn: 'VictoriaMetrics 指标查询界面' }
+  - { name: Grafana            ,url: '/grafana/'               ,desc: 'Grafana Dashboard'           ,icon: 'grafana'  ,name_cn: 'Grafana' ,desc_cn: 'Grafana 可视化看板' }
   - { name: Logs               ,url: '/vlogs/select/vmui/'     ,desc: 'VictoriaLogs Query UI'       ,icon: 'logs'     ,name_cn: '日志查询' ,desc_cn: 'VictoriaLogs 日志查询界面'    }
   - { name: Traces             ,url: '/vtraces/select/vmui/'   ,desc: 'VictoriaTraces Query UI'     ,icon: 'traces'   ,name_cn: '链路追踪' ,desc_cn: 'VictoriaTraces 链路查询界面'  }
   - { name: Monitor Targets    ,url: '/vmetrics/targets'       ,desc: 'Prometheus Scrape Targets'   ,icon: 'target'   ,name_cn: '监控目标' ,desc_cn: 'VictoriaMetrics 监控对象列表' }
