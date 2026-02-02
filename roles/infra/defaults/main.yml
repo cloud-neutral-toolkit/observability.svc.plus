@@ -34,9 +34,10 @@ infra_extra_services: []          # extra services to be added on infra home pag
 #infra_packages: []               # packages to be installed on infra nodes
 
 #-----------------------------------------------------------------
-# NGINX
+# CADDY vs NGINX
 #-----------------------------------------------------------------
-nginx_enabled: true               # enable nginx on this infra node?
+caddy_enabled: true               # use caddy as ingress controller?
+nginx_enabled: false              # enable nginx on this infra node?
 nginx_clean: false                # clean existing nginx config during init?
 nginx_exporter_enabled: true      # enable nginx_exporter on this infra node?
 nginx_exporter_port: 9113         # nginx_exporter listen port, 9113 by default
