@@ -8,9 +8,11 @@
   apt:
     name:
       - nodejs
+      - npm
       - build-essential
       - make
     state: present
+    default_release: trixie
     update_cache: yes
 
 - name: create workbench directory
