@@ -12,12 +12,10 @@ DOMAIN="$(hostname)"
 
 # Handle flags
 AUTO_YES=false
-while [[ "$#" -gt 0 && "$1" == -* ]]; do
-    case "$1" in
-        -y|--yes) AUTO_YES=true; shift ;;
-        *) break ;;
-    esac
-done
+if [[ "$1" == "-y" || "$1" == "--yes" ]]; then
+    AUTO_YES=true
+    shift
+fi
 
 if [[ -n "$1" ]]; then
     # if $1 looks like a version/branch (main, master, v1.0, etc.)
