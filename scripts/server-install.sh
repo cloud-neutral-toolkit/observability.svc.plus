@@ -130,7 +130,24 @@ if [ -f "./configure" ]; then
     fi
 fi
 
-echo -e "${GREEN}Installation and configuration successful!${NC}"
-echo -e "Next steps:"
-echo -e "  cd ${INSTALL_DIR}"
-echo -e "  ./deploy.yml # Run this to start the actual deployment"
+# Run Deployment automatically
+if [ -f "./deploy.yml" ]; then
+    echo -e "${BLUE}Starting deployment...${NC}"
+    ./deploy.yml || { echo -e "${RED}Error: Deployment failed${NC}"; exit 1; }
+fi
+
+echo -e "\n${GREEN}Successfully deployed observability.svc.plus!${NC}"
+echo -e "----------------------------------------------------------------"
+echo -e "URL             :  https://${DOMAIN}"
+echo -e "Insight         :  https://${DOMAIN}/insight"
+echo -e "Grafana         :  https://${DOMAIN}/grafana"
+echo -e "User            :  admin"
+echo -e "Password        :  pigsty"
+echo -e "----------------------------------------------------------------"
+echo -e "OTLP (gRPC)     :  http://${DOMAIN}:4317"
+echo -e "OTLP (HTTP)     :  http://${DOMAIN}:4318"
+echo -e "VictoriaMetrics :  http://${DOMAIN}:8428"
+echo -e "----------------------------------------------------------------"
+echo -e "查询 (PromQL)   :  http://${DOMAIN}:8428/api/v1/query"
+echo -e "写入 (Remote)   :  http://${DOMAIN}:8428/api/v1/write"
+echo -e "----------------------------------------------------------------"
