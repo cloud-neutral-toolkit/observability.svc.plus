@@ -62,8 +62,8 @@
   tags: grafana_config
   template: src={{ item.src }} dest={{ item.dest }} owner=grafana group=grafana
   with_items:
-    - { src: grafana/grafana.ini.j2    ,dest: /etc/grafana/grafana.ini }
-    - { src: grafana/datasource.yml.j2 ,dest: /etc/grafana/provisioning/datasources/pigsty.yml }
+    - { src: grafana/grafana.ini.j2, dest: /etc/grafana/grafana.ini }
+    - { src: grafana/datasource.yml.j2, dest: /etc/grafana/provisioning/datasources/pigsty.yml }
     - { src: grafana/dashboard.yml.j2  ,dest: /etc/grafana/provisioning/dashboards/pigsty.yml  }
 
 
