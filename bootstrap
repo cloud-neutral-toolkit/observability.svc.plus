@@ -287,6 +287,15 @@ function fix_nopass_ssh(){
     if ! grep -q "${publicKey}" ~/.ssh/authorized_keys; then
         cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
     fi
+    # If root, ensure PermitRootLogin is allowed
+    if [[ $(id -u) -eq 0 ]]; then
+        if grep -q "PermitRootLogin" /etc/ssh/sshd_config; then
+            sudo sed -i 's/^.*PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+        else
+            echo "PermitRootLogin prohibit-password" | sudo tee -a /etc/ssh/sshd_config > /dev/null
+        fi
+        sudo systemctl reload ssh &>/dev/null || sudo systemctl reload sshd &>/dev/null
+    fi
     return $(can_nopass_ssh)
 }
 

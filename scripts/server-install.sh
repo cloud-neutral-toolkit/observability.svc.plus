@@ -75,6 +75,27 @@ fi
 
 cd "${INSTALL_DIR}"
 
+# Fix root SSH access if running as root
+if [ "$(id -u)" -eq 0 ]; then
+    echo -e "${BLUE}Ensuring root SSH access...${NC}"
+    mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    if [ ! -f ~/.ssh/id_rsa ]; then
+        ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
+    fi
+    PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)
+    if ! grep -q "$PUBLIC_KEY" ~/.ssh/authorized_keys 2>/dev/null; then
+        echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
+        chmod 600 ~/.ssh/authorized_keys
+    fi
+    # Also ensure SSH daemon allows root login via key
+    if grep -q "PermitRootLogin" /etc/ssh/sshd_config; then
+        sed -i 's/^.*PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+    else
+        echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
+    fi
+    systemctl reload ssh &>/dev/null || systemctl reload sshd &>/dev/null
+fi
+
 # Run Bootstrap
 if [ -f "./bootstrap" ]; then
     echo -e "${BLUE}Running bootstrap...${NC}"
