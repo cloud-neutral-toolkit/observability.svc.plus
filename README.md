@@ -7,7 +7,7 @@
 
 > **Focus**: Monitoring & Observability (监控/可观测). Integrating **OpenTelemetry (OTel)**, with future plans to incorporate **DeepFlow Agent** and other open-source **NPM** (Network Performance Monitoring) probes.
 
-[Website](https://svc.plus/services) | [Public Demo](https://svc.plus/) | [Blog](https://svc.plus/blogs) | [Support](https://www.svc.plus/support)
+[Website](https://svc.plus/) | [Public Demo](https://svc.plus/services) | [Blog](https://svc.plus/blogs) | [Support](https://www.svc.plus/support)
 
 [![banner](files/img/observability-banner.jpg)](https://observability.svc.plus)
 
@@ -17,14 +17,13 @@
 默认安装最新稳定版 , 默认使用当前主机名作为域名
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh | bash
+curl -fsSL "https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh?$(date +%s)" | bash
 ```
 
 ### 指定版本与域名 (安装建议)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh \
-| bash -s --  observability.svc.plus
+curl -fsSL "https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/server-install.sh?$(date +%s)" | bash -s -- observability.svc.plus
 ```
 
 
