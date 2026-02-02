@@ -12,7 +12,7 @@ DOMAIN="$(hostname)"
 
 # Handle flags
 AUTO_YES=false
-while [[ "$1" =~ ^- ]]; do
+while [[ "$#" -gt 0 && "$1" == -* ]]; do
     case "$1" in
         -y|--yes) AUTO_YES=true; shift ;;
         *) break ;;
@@ -120,8 +120,8 @@ fi
 
 # Run Configure automatically
 if [ -f "./configure" ]; then
-    echo -e "${BLUE}Running configure (auto-detecting IP)...${NC}"
-    ./configure -n || { echo -e "${RED}Error: Configure failed${NC}"; exit 1; }
+    echo -e "${BLUE}Running configure (forcing 127.0.0.1)...${NC}"
+    ./configure -n -i 127.0.0.1 || { echo -e "${RED}Error: Configure failed${NC}"; exit 1; }
 fi
 
 echo -e "${GREEN}Installation and configuration successful!${NC}"
