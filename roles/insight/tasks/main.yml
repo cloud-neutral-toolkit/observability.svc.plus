@@ -5,13 +5,10 @@
 
 - name: install nodejs and build tools
   tags: insight_pkg
-  package:
     name:
       - nodejs
       - npm
-      - g++
-      - make
-    state: present
+      - build-essential
 
 - name: create workbench directory
   tags: insight_dir
