@@ -136,10 +136,10 @@
 	file_server browse
 
 	@home path /
-	redir @home /insight/ 301
+	redir @home /grafana/ 301
 
 	@zh path /zh
-	redir @zh /insight/ 301
+	redir @zh /grafana/ 301
 
 	@pev path /pev
 	rewrite @pev /pev.html
