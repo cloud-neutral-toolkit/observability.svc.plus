@@ -4,7 +4,7 @@ export interface ClientOptions {
 }
 
 export function createOpenObserveClient(options: ClientOptions = {}) {
-  const { baseUrl = 'https://infra.svc.plus/api', token } = options
+  const { baseUrl = 'https://observability.svc.plus/api', token } = options
 
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const headers = new Headers(init?.headers)

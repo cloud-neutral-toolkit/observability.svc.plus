@@ -1,153 +1,335 @@
 #!/bin/bash
 #==============================================================#
-# File      :   install.sh
-# Mtime     :   2026-02-01
-# Desc      :   Install observability.svc.plus
-# Usage     :   curl ... | bash -s <VERSION> <DOMAIN>
+# File      : server-install.sh
+# Mtime     : 2026-02-03
+# Desc      : observability.svc.plus lifecycle installer
+# Usage     : curl ... | bash -s -- [options] [VERSION] [DOMAIN]
 #==============================================================#
 
-# Default parameters
+set -euo pipefail
+
 VERSION="main"
 DOMAIN="$(hostname)"
-
-# Handle flags
+ACTION="deploy"
 AUTO_YES=false
+FORCE_RECLONE=false
+SKIP_DEPLOY=false
+
+REPO_URL="https://github.com/cloud-neutral-toolkit/observability.svc.plus.git"
+REPO_NAME="$(basename "${REPO_URL}" .git)"
+INSTALL_DIR="${HOME}/${REPO_NAME}"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
+
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log_ok() { echo -e "${GREEN}[OK]${NC} $1"; }
+
+usage() {
+    cat <<EOF
+Usage:
+  bash server-install.sh [options] [VERSION] [DOMAIN]
+  bash server-install.sh [options] [DOMAIN]
+
+Actions (default: deploy):
+  --action deploy     Deploy or upgrade in place (idempotent)
+  --action upgrade    Same as deploy
+  --action reset      Rebuild from scratch (destructive)
+  --action uninstall  Remove install dir and local systemd units
+
+Options:
+  -y, --yes           Non-interactive mode
+  --force-reclone     Re-clone repo before deploy/upgrade
+  --skip-deploy       Only sync repo/bootstrap/configure, skip deploy.yml
+  -h, --help          Show help
+
+Examples:
+  curl -fsSL ".../server-install.sh" | bash -s -- observability.svc.plus
+  curl -fsSL ".../server-install.sh" | bash -s -- --action upgrade observability.svc.plus
+  curl -fsSL ".../server-install.sh" | bash -s -- --action reset -y observability.svc.plus
+EOF
+}
+
+confirm() {
+    local prompt="$1"
+    if [[ "${AUTO_YES}" == "true" ]]; then
+        return 0
+    fi
+    read -r -p "${prompt} [y/N] " reply
+    [[ "${reply}" =~ ^[Yy]$ ]]
+}
+
+ensure_repo() {
+    if ! command -v git >/dev/null 2>&1; then
+        log_error "git is not installed."
+        exit 1
+    fi
+
+    if [[ ! -d "${INSTALL_DIR}/.git" || "${FORCE_RECLONE}" == "true" ]]; then
+        if [[ -d "${INSTALL_DIR}" ]]; then
+            log_warn "Removing existing directory before clone: ${INSTALL_DIR}"
+            rm -rf "${INSTALL_DIR}"
+        fi
+        log_info "Cloning ${REPO_URL} (${VERSION}) ..."
+        git clone -b "${VERSION}" "${REPO_URL}" "${INSTALL_DIR}"
+    else
+        log_info "Updating existing repo at ${INSTALL_DIR}"
+        git -C "${INSTALL_DIR}" fetch --prune origin
+        git -C "${INSTALL_DIR}" checkout "${VERSION}"
+        git -C "${INSTALL_DIR}" pull --ff-only origin "${VERSION}"
+    fi
+}
+
+ensure_root_ssh_access() {
+    if [[ "$(id -u)" -ne 0 ]]; then
+        return 0
+    fi
+
+    log_info "Ensuring root SSH key-based access..."
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    if [[ ! -f ~/.ssh/id_rsa ]]; then
+        ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
+    fi
+
+    local public_key
+    public_key="$(cat ~/.ssh/id_rsa.pub)"
+    touch ~/.ssh/authorized_keys
+    if ! grep -qF "${public_key}" ~/.ssh/authorized_keys; then
+        echo "${public_key}" >> ~/.ssh/authorized_keys
+    fi
+    chmod 600 ~/.ssh/authorized_keys
+
+    if [[ -f /etc/ssh/sshd_config ]]; then
+        if grep -q "^PermitRootLogin" /etc/ssh/sshd_config; then
+            sed -i 's/^PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+        elif ! grep -q "PermitRootLogin prohibit-password" /etc/ssh/sshd_config; then
+            echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
+        fi
+        systemctl reload ssh >/dev/null 2>&1 || systemctl reload sshd >/dev/null 2>&1 || true
+    fi
+}
+
+run_bootstrap() {
+    cd "${INSTALL_DIR}"
+    if [[ -x "./bootstrap" ]]; then
+        log_info "Running bootstrap..."
+        ./bootstrap
+    elif [[ -f "./configure" ]]; then
+        log_info "No bootstrap found, proceeding with configure."
+    else
+        log_error "Neither bootstrap nor configure exists in ${INSTALL_DIR}"
+        exit 1
+    fi
+}
+
+run_configure() {
+    cd "${INSTALL_DIR}"
+    if [[ -x "./configure" ]]; then
+        log_info "Running configure..."
+        ./configure -n -i 127.0.0.1
+    fi
+    if [[ -f "pigsty.yml" ]]; then
+        sed -i 's/10\.146\.0\.6/127.0.0.1/g' pigsty.yml
+    fi
+}
+
+run_deploy() {
+    cd "${INSTALL_DIR}"
+    if [[ "${SKIP_DEPLOY}" == "true" ]]; then
+        log_warn "Skipping deploy.yml as requested."
+        return 0
+    fi
+    if [[ -x "./deploy.yml" ]]; then
+        log_info "Running deploy.yml ..."
+        ./deploy.yml
+    else
+        log_warn "deploy.yml not found, skipping."
+    fi
+}
+
+configure_ingest_gateway() {
+    local home_conf="/etc/nginx/conf.d/home.conf"
+    local ingest_inc="/etc/nginx/conf.d/ingest-observability.inc"
+
+    if [[ -f "${home_conf}" ]]; then
+        log_info "Configuring HTTPS ingest routes in nginx..."
+        cat > "${ingest_inc}" <<'EOF'
+# managed by scripts/server-install.sh
+location = /ingest/metrics/api/v1/write {
+    proxy_pass http://127.0.0.1:8428/api/v1/write;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location = /ingest/logs/loki/api/v1/push {
+    proxy_pass http://127.0.0.1:9428/insert/loki/api/v1/push;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location = /ingest/otlp/v1/traces {
+    proxy_pass http://127.0.0.1:10428/insert/opentelemetry/v1/traces;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+EOF
+
+        if ! grep -q "include /etc/nginx/conf.d/ingest-observability.inc;" "${home_conf}"; then
+            # Keep it near top-level server directives so location blocks are active.
+            sed -i '/proxy_request_buffering off;/a\    include /etc/nginx/conf.d/ingest-observability.inc;' "${home_conf}"
+        fi
+
+        nginx -t
+        if systemctl is-active --quiet nginx; then
+            systemctl reload nginx
+        else
+            log_warn "nginx is inactive, skip reload."
+        fi
+        log_ok "Nginx ingest gateway configured."
+    else
+        log_warn "Nginx home.conf not found, skipping nginx ingest config."
+    fi
+
+    if [[ -f "/etc/caddy/Caddyfile" ]]; then
+        log_info "Configuring ingest reverse proxy in caddy..."
+        sed -i -E 's|(reverse_proxy[[:space:]]+)127\\.0\\.0\\.1:12345|\\1127.0.0.1:8428|g' /etc/caddy/Caddyfile
+        sed -i -E 's|(reverse_proxy[[:space:]]+)127\\.0\\.0\\.1:12346|\\1127.0.0.1:9428|g' /etc/caddy/Caddyfile
+        if command -v caddy >/dev/null 2>&1; then
+            caddy validate --config /etc/caddy/Caddyfile
+        fi
+        if systemctl is-active --quiet caddy; then
+            systemctl reload caddy
+        fi
+        log_ok "Caddy ingest gateway configured."
+    fi
+}
+
+uninstall_stack() {
+    log_warn "Uninstall action will remove local install assets."
+    confirm "Continue uninstall?" || { log_info "Cancelled."; return 0; }
+
+    if [[ -d "${INSTALL_DIR}" ]]; then
+        rm -rf "${INSTALL_DIR}"
+        log_ok "Removed ${INSTALL_DIR}"
+    else
+        log_info "Install directory does not exist: ${INSTALL_DIR}"
+    fi
+
+    for unit in pigsty vmetrics vlogs vtraces grafana-server; do
+        if systemctl list-unit-files | grep -q "^${unit}\.service"; then
+            systemctl disable --now "${unit}" >/dev/null 2>&1 || true
+            rm -f "/etc/systemd/system/${unit}.service"
+        fi
+    done
+    systemctl daemon-reload
+    log_ok "Uninstall cleanup finished."
+}
+
+deploy_or_upgrade() {
+    ensure_repo
+    ensure_root_ssh_access
+    run_bootstrap
+    run_configure
+    run_deploy
+    configure_ingest_gateway
+
+    log_ok "Deploy/upgrade completed."
+    echo -e "----------------------------------------------------------------"
+    echo -e "Dashboard       : https://${DOMAIN}"
+    echo -e "user            : admin"
+    echo -e "Pass            : pigsty"
+    echo -e "----------------------------------------------------------------"
+    echo -e "Metrics Ingest  : https://${DOMAIN}/ingest/metrics/api/v1/write"
+    echo -e "Logs Ingest     : https://${DOMAIN}/ingest/logs/insert"
+    echo -e "Traces Ingest   : https://${DOMAIN}/ingest/otlp/v1/traces"
+    echo -e "PromQL Query    : http://${DOMAIN}:8428/api/v1/query"
+    echo -e "Remote Write    : http://${DOMAIN}:8428/api/v1/write"
+    echo -e "Grafana         : https://${DOMAIN}/grafana"
+    echo -e "----------------------------------------------------------------"
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -y|--yes) AUTO_YES=true; shift ;;
-        -*) shift ;; # ignore other flags
-        *) break ;;
+        --action)
+            ACTION="$2"
+            shift 2
+            ;;
+        --action=*)
+            ACTION="${1#*=}"
+            shift
+            ;;
+        -y|--yes)
+            AUTO_YES=true
+            shift
+            ;;
+        --force-reclone)
+            FORCE_RECLONE=true
+            shift
+            ;;
+        --skip-deploy)
+            SKIP_DEPLOY=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            log_error "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+        *)
+            break
+            ;;
     esac
 done
 
-if [[ -n "$1" ]]; then
-    # if $1 looks like a version/branch (main, master, v1.0, etc.)
+if [[ $# -ge 1 ]]; then
     if [[ "$1" == "main" || "$1" == "master" || "$1" == v[0-9]* ]]; then
         VERSION="$1"
         DOMAIN="${2:-$(hostname)}"
     else
-        # assume $1 is the DOMAIN
         DOMAIN="$1"
     fi
 fi
 
-REPO_URL="https://github.com/cloud-neutral-toolkit/observability.svc.plus.git"
-REPO_NAME=$(basename "${REPO_URL}" .git)
-INSTALL_DIR="${HOME}/${REPO_NAME}"
+log_info "Repo    : ${REPO_URL}"
+log_info "Dir     : ${INSTALL_DIR}"
+log_info "Version : ${VERSION}"
+log_info "Domain  : ${DOMAIN}"
+log_info "Action  : ${ACTION}"
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-echo -e "${BLUE}Installing ${REPO_NAME}...${NC}"
-echo -e "${BLUE}Version : ${VERSION}${NC}"
-echo -e "${BLUE}Domain  : ${DOMAIN}${NC}"
-echo -e "${BLUE}Repo    : ${REPO_URL}${NC}"
-echo -e "${BLUE}Dir     : ${INSTALL_DIR}${NC}"
-
-# Check for git
-if ! command -v git &> /dev/null; then
-    echo -e "${RED}Error: git is not installed.${NC}"
-    echo "Please install git first (yum install git / apt install git)"
-    exit 1
-fi
-
-# Clone or Update
-if [ -d "${INSTALL_DIR}" ]; then
-    echo -e "${BLUE}Directory ${INSTALL_DIR} already exists.${NC}"
-    if [ "$AUTO_YES" = true ]; then
-        REPLY="y"
-    else
-        read -p "Overwrite? (y/N) " -n 1 -r
-        echo
-    fi
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm -rf "${INSTALL_DIR}"
-        if ! git clone -b "${VERSION}" "${REPO_URL}" "${INSTALL_DIR}"; then
-            echo -e "${RED}Error: Failed to clone repository.${NC}"
-            exit 1
-        fi
-    else
-        echo -e "${BLUE}Updating existing repo...${NC}"
-        cd "${INSTALL_DIR}"
-        git fetch origin
-        if ! git checkout "${VERSION}"; then
-             echo -e "${RED}Error: Version ${VERSION} not found${NC}"
-             exit 1
-        fi
-        git pull origin "${VERSION}"
-    fi
-else
-    if ! git clone -b "${VERSION}" "${REPO_URL}" "${INSTALL_DIR}"; then
-        echo -e "${RED}Error: Failed to clone repository.${NC}"
+case "${ACTION}" in
+    deploy|upgrade)
+        deploy_or_upgrade
+        ;;
+    reset)
+        confirm "Reset will remove and reinstall ${INSTALL_DIR}. Continue?" || {
+            log_info "Cancelled."
+            exit 0
+        }
+        FORCE_RECLONE=true
+        deploy_or_upgrade
+        ;;
+    uninstall)
+        uninstall_stack
+        ;;
+    *)
+        log_error "Unsupported action: ${ACTION}"
+        usage
         exit 1
-    fi
-fi
-
-cd "${INSTALL_DIR}"
-
-# Fix root SSH access if running as root
-if [ "$(id -u)" -eq 0 ]; then
-    echo -e "${BLUE}Ensuring root SSH access...${NC}"
-    mkdir -p ~/.ssh && chmod 700 ~/.ssh
-    if [ ! -f ~/.ssh/id_rsa ]; then
-        ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
-    fi
-    PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)
-    if ! grep -q "$PUBLIC_KEY" ~/.ssh/authorized_keys 2>/dev/null; then
-        echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
-        chmod 600 ~/.ssh/authorized_keys
-    fi
-    # Also ensure SSH daemon allows root login via key
-    if grep -q "PermitRootLogin" /etc/ssh/sshd_config; then
-        sed -i 's/^.*PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-    else
-        echo "PermitRootLogin prohibit-password" >> /etc/ssh/sshd_config
-    fi
-    systemctl reload ssh &>/dev/null || systemctl reload sshd &>/dev/null
-fi
-
-# Run Bootstrap
-if [ -f "./bootstrap" ]; then
-    echo -e "${BLUE}Running bootstrap...${NC}"
-    ./bootstrap || { echo -e "${RED}Error: Bootstrap failed${NC}"; exit 1; }
-elif [ -f "./configure" ]; then
-    echo -e "${BLUE}Found configure script, but no bootstrap. Proceeding...${NC}"
-else
-    echo -e "${RED}Warning: Primary setup scripts not found! Check repo content.${NC}"
-fi
-
-# Run Configure automatically
-if [ -f "./configure" ]; then
-    echo -e "${BLUE}Running configure...${NC}"
-    ./configure -n -i 127.0.0.1 || { echo -e "${RED}Error: Configure failed${NC}"; exit 1; }
-    # Reinforced IP safety check for inventory
-    if [ -f "pigsty.yml" ]; then
-         echo -e "${BLUE}Reinforcing 127.0.0.1 in pigsty.yml...${NC}"
-         sed -i 's/10.146.0.6/127.0.0.1/g' pigsty.yml
-    fi
-fi
-
-# Run Deployment automatically
-if [ -f "./deploy.yml" ]; then
-    echo -e "${BLUE}Starting deployment...${NC}"
-    ./deploy.yml || { echo -e "${RED}Error: Deployment failed${NC}"; exit 1; }
-fi
-
-echo -e "\n${GREEN}Successfully deployed observability.svc.plus!${NC}"
-echo -e "----------------------------------------------------------------"
-echo -e "Dashboard       :  https://${DOMAIN}"
-echo -e "user            :  admin"
-echo -e "Pass            :  pigsty"
-echo -e "----------------------------------------------------------------"
-echo -e "Otel_endpoint   :  http://${DOMAIN}:4317"
-echo -e "Otel_endpoint   :  http://${DOMAIN}:4318"
-echo -e "----------------------------------------------------------------"
-echo -e "查询 (PromQL)   :  http://${DOMAIN}:8428/api/v1/query"
-echo -e "写入 (Remote)   :  http://${DOMAIN}:8428/api/v1/write"
-echo -e "----------------------------------------------------------------"
-echo -e "Insight         :  https://${DOMAIN}/insight"
-echo -e "Grafana         :  https://${DOMAIN}/grafana"
-echo -e "----------------------------------------------------------------"
+        ;;
+esac

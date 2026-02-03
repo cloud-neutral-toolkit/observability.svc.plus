@@ -125,7 +125,7 @@ To install observability agents (Node Exporter, Process Exporter, Vector) on a c
 ```bash
 # bash -s -- --endpoint <YOUR_ENDPOINT>
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-install.sh \
-  | bash -s -- --endpoint https://infra.svc.plus/ingest/otlp
+  | bash -s -- --endpoint https://observability.svc.plus/ingest/otlp
 ```
 > **Note**: The script automatically verifies the installation after setup.
 
