@@ -83,7 +83,7 @@ def merge_dashboards():
             p["title"] = "insight Overview"
             p["type"] = "text"
             p["options"] = {
-                "content": "<div style='text-align: center; padding-top: 10px;'><a href='/insight/' style='font-size: 18px; color: #58a6ff; font-weight: bold;'>insight Overview</a></div>",
+                "content": "<div style='text-align: center; padding-top: 10px;'><a href='https://observability.svc.plus/insight/' style='font-size: 18px; color: #58a6ff; font-weight: bold;'>insight Overview</a></div>",
                 "mode": "html"
             }
         
