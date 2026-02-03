@@ -274,7 +274,7 @@ def init_all(dashboard_dir):
         if os.path.isdir(abs_path):
             folders.append((f, abs_path))  # folder name, abs path
 
-    home_uid = ""
+    home_uid = "home"
     if home_uid:
         star_dashboard_by_uid(home_uid)  # home dashboards will be loaded above if exists
         update_org_preference(home_uid, "light")
