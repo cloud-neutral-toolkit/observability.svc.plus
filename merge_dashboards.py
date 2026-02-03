@@ -73,25 +73,44 @@ def merge_dashboards():
     # 1. Infra
     homepage["panels"].append({"collapsed": False, "gridPos": {"h": 1, "w": 24, "x": 0, "y": current_y}, "title": "Infra Overview", "type": "row", "panels": []})
     current_y += 1
+    
+    infra_max_y = current_y
     for p in pig.get("panels", []):
         if p.get("type") == "row": continue
+        
+        # Replace "Apps" panel with "insight Overview" link
+        if p.get("title") == "Apps":
+            p["title"] = "insight Overview"
+            p["type"] = "text"
+            p["options"] = {
+                "content": "<div style='text-align: center; padding-top: 10px;'><a href='/insight/' style='font-size: 18px; color: #58a6ff; font-weight: bold;'>insight Overview</a></div>",
+                "mode": "html"
+            }
+        
         p["gridPos"]["y"] += current_y
         homepage["panels"].append(p)
-        current_y = max(current_y, p["gridPos"]["y"] + p["gridPos"]["h"])
+        infra_max_y = max(infra_max_y, p["gridPos"]["y"] + p["gridPos"]["h"])
+    current_y = infra_max_y
+
     # 2. Node
     homepage["panels"].append({"collapsed": False, "gridPos": {"h": 1, "w": 24, "x": 0, "y": current_y}, "title": "Node", "type": "row", "panels": []})
     current_y += 1
+    node_max_y = current_y
     for p in node.get("panels", []):
         p["gridPos"]["y"] += current_y
         homepage["panels"].append(p)
-        current_y = max(current_y, p["gridPos"]["y"] + p["gridPos"]["h"])
+        node_max_y = max(node_max_y, p["gridPos"]["y"] + p["gridPos"]["h"])
+    current_y = node_max_y
+
     # 3. K8S
     homepage["panels"].append({"collapsed": False, "gridPos": {"h": 1, "w": 24, "x": 0, "y": current_y}, "title": "K8S Cluster", "type": "row", "panels": []})
     current_y += 1
+    k8s_max_y = current_y
     for p in k8s.get("panels", []):
         p["gridPos"]["y"] += current_y
         homepage["panels"].append(p)
-        current_y = max(current_y, p["gridPos"]["y"] + p["gridPos"]["h"])
+        k8s_max_y = max(k8s_max_y, p["gridPos"]["y"] + p["gridPos"]["h"])
+    current_y = k8s_max_y
 
     for i, p in enumerate(homepage["panels"]):
         p["id"] = i + 1
