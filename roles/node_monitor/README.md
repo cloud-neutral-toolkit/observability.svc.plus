@@ -150,7 +150,7 @@ useful ones (tcpstat for TCP connection stats, processes for process metrics).
 Creates target files at `/infra/targets/node/<ip>.yml`:
 
 ```yaml
-- labels: { ip: 10.10.10.11, ins: pg-test-1, cls: pg-test }
+- labels: { ip: 10.10.10.11, ins: pg-test-1, host: pg-test-host, cls: pg-test }
   targets:
     - 10.10.10.11:9100    # node_exporter
     - 10.10.10.11:9101    # haproxy_exporter

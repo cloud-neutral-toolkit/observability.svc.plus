@@ -15,6 +15,8 @@ ACTION="deploy"
 ENDPOINT="${DEFAULT_ENDPOINT}"
 METRICS_ENDPOINT=""
 LOGS_ENDPOINT=""
+METRICS_ENDPOINT_SET=false
+LOGS_ENDPOINT_SET=false
 AUTO_YES=false
 
 GREEN='\033[0;32m'
@@ -81,18 +83,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         --metrics-endpoint)
             METRICS_ENDPOINT="$2"
+            METRICS_ENDPOINT_SET=true
             shift 2
             ;;
         --metrics-endpoint=*)
             METRICS_ENDPOINT="${1#*=}"
+            METRICS_ENDPOINT_SET=true
             shift
             ;;
         --logs-endpoint)
             LOGS_ENDPOINT="$2"
+            LOGS_ENDPOINT_SET=true
             shift 2
             ;;
         --logs-endpoint=*)
             LOGS_ENDPOINT="${1#*=}"
+            LOGS_ENDPOINT_SET=true
             shift
             ;;
         -y|--yes)
@@ -120,6 +126,18 @@ if [[ -z "${METRICS_ENDPOINT}" ]]; then
 fi
 if [[ -z "${LOGS_ENDPOINT}" ]]; then
     LOGS_ENDPOINT="${base_endpoint}/ingest/logs/insert"
+fi
+
+# observability server should bypass external HTTPS ingress for local self-monitoring
+local_host="$(hostname -f 2>/dev/null || hostname)"
+local_short="${local_host%%.*}"
+if [[ "${local_host}" == "observability.svc.plus" || "${local_short}" == "observability" ]]; then
+    if [[ "${METRICS_ENDPOINT_SET}" == "false" ]]; then
+        METRICS_ENDPOINT="http://127.0.0.1:8428/api/v1/write"
+    fi
+    if [[ "${LOGS_ENDPOINT_SET}" == "false" ]]; then
+        LOGS_ENDPOINT="http://127.0.0.1:9428/insert"
+    fi
 fi
 
 if [[ $EUID -ne 0 ]]; then

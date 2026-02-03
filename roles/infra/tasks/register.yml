@@ -9,6 +9,28 @@
   loop: '{{ groups["infra"]|default([]) }}'
   template: src=prometheus/infra.yml.j2 dest=/infra/targets/infra/infra-{{ infra_seq }}.yml owner=victoria group=infra mode=0640
 
+# Keep infra host self-node metrics registration managed in infra role.
+# This avoids dependence on node_monitor completion order for local node target.
+- name: render infra self node target to victoria
+  tags: [ infra_register, register, add_metrics ]
+  ignore_errors: true
+  delegate_to: '{{ item }}'
+  loop: '{{ groups["infra"]|default([]) }}'
+  copy:
+    dest: /infra/targets/node/{{ item }}.yml
+    owner: victoria
+    group: infra
+    mode: '0640'
+    content: |
+      # {{ item }}
+      - labels:
+          ip: "{{ item }}"
+          ins: "{{ hostvars[item]['nodename'] | default(item) }}"
+          host: "{{ hostvars[item]['ansible_hostname'] | default(hostvars[item]['nodename'] | default(item)) }}"
+          cls: "{{ hostvars[item]['node_cluster'] | default('infra') }}"
+        targets:
+          - "{{ item }}:{{ hostvars[item]['node_exporter_port'] | default(9100) }}"
+
 #--------------------------------------------------------------#
 # Register infra logs to vector       [add_logs][infra_register]
 #--------------------------------------------------------------#

@@ -151,7 +151,7 @@
     content: |
       # {{ inventory_hostname }}
       # node, haproxy, vector
-      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }} }
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , host: {{ ansible_hostname|default(nodename|default(inventory_hostname)) }} , cls: {{ node_cluster|default('nodes') }} }
         targets: {% if not node_exporter_enabled|bool and not haproxy_enabled|bool and not vector_enabled|bool %}[]{% endif %} 
           {% if node_exporter_enabled|bool %}- {{ inventory_hostname }}:{{ node_exporter_port }}{% endif %}
       
@@ -161,7 +161,7 @@
       
       {% if vip_enabled|bool and vip_address is defined and vip_address != '' %}
       # keepalived
-      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , cls: {{ node_cluster|default('nodes') }}, vip: {{ vip_address }} }
+      - labels: { ip: {{ inventory_hostname }} , ins: {{ nodename }} , host: {{ ansible_hostname|default(nodename|default(inventory_hostname)) }} , cls: {{ node_cluster|default('nodes') }}, vip: {{ vip_address }} }
         targets: [ {{ inventory_hostname }}:{{ vip_exporter_port }} ]
       {% endif %}
 
