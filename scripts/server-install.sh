@@ -135,7 +135,22 @@ run_configure() {
         ./configure -n -i 127.0.0.1
     fi
     if [[ -f "pigsty.yml" ]]; then
+        log_info "Tuning pigsty.yml: setting 127.0.0.1 and enabling Caddy..."
         sed -i 's/10\.146\.0\.6/127.0.0.1/g' pigsty.yml
+        
+        # Ensure Nginx is disabled and Caddy is enabled in global vars
+        # We look for the 'vars:' section under 'all:'
+        if grep -q "nginx_enabled:" pigsty.yml; then
+            sed -i 's/nginx_enabled: .*/nginx_enabled: false/' pigsty.yml
+        else
+            sed -i '/vars:/a \    nginx_enabled: false' pigsty.yml
+        fi
+
+        if grep -q "caddy_enabled:" pigsty.yml; then
+            sed -i 's/caddy_enabled: .*/caddy_enabled: true/' pigsty.yml
+        else
+            sed -i '/vars:/a \    caddy_enabled: true' pigsty.yml
+        fi
     fi
 }
 
@@ -238,6 +253,12 @@ uninstall_stack() {
 }
 
 deploy_or_upgrade() {
+    log_info "Cleaning up potential port conflicts (80/443)..."
+    if command -v fuser >/dev/null 2>&1; then
+        fuser -k 80/tcp 443/tcp || true
+    fi
+    systemctl stop nginx apache2 caddy 2>/dev/null || true
+
     ensure_repo
     ensure_root_ssh_access
     run_bootstrap
