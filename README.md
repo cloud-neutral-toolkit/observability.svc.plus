@@ -127,7 +127,32 @@ To install observability agents (Node Exporter, Process Exporter, Vector) on a c
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-install.sh \
   | bash -s -- --endpoint https://observability.svc.plus/ingest/otlp
 ```
-> **Note**: The script automatically verifies the installation after setup.
+> **Note**
+> - `--endpoint` supports both:
+>   - `https://observability.svc.plus`
+>   - `https://observability.svc.plus/ingest/otlp`
+> - The installer auto-derives:
+>   - metrics endpoint: `/ingest/metrics/api/v1/write`
+>   - logs endpoint: `/ingest/logs/insert`
+> - The script automatically verifies installation after setup.
+
+### Install on a remote host (example: clawdbot.svc.plus)
+
+```bash
+ssh root@clawdbot.svc.plus \
+  'curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-install.sh \
+    | bash -s -- --endpoint https://observability.svc.plus/ingest/otlp'
+```
+
+### Optional SSH manager env example
+
+```bash
+SSH_SERVER_CLAWBOT_HOST=clawdbot.svc.plus
+SSH_SERVER_CLAWBOT_USER=root
+SSH_SERVER_CLAWBOT_KEYPATH=~/.ssh/id_rsa
+SSH_SERVER_CLAWBOT_PORT=22
+SSH_SERVER_CLAWBOT_DESCRIPTION=clawdbot_server
+```
 
 
 ## Features
@@ -144,12 +169,6 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
 --------
 
 > [**Single-Node Setup**](https://svc.plus/docs/setup/install) | [**Production Deploy**](https://svc.plus/docs/deploy) | [**Offline Install**](https://svc.plus/docs/setup/offline) | [**Minimal Install**](https://svc.plus/docs/setup/slim) | [**Docker Install**](https://svc.plus/docs/setup/docker) | [**Run Supabase**](https://svc.plus/docs/app/supabase)
-
-
-
-</details>
-
-
 
 
 Integrated as a platform.
