@@ -419,6 +419,14 @@ verify_installation() {
     done
 }
 
+print_endpoint_summary() {
+    echo
+    log_success "Resolved ingest endpoints:"
+    echo "  Base URL         : ${base_endpoint}"
+    echo "  Metrics endpoint : ${METRICS_ENDPOINT}"
+    echo "  Logs endpoint    : ${LOGS_ENDPOINT}"
+}
+
 deploy_agent() {
     log_info "Action=${ACTION}"
     log_info "Base endpoint=${ENDPOINT}"
@@ -429,6 +437,7 @@ deploy_agent() {
     install_vector
     verify_installation
     log_success "Agent deploy/upgrade complete."
+    print_endpoint_summary
 }
 
 case "${ACTION}" in
