@@ -541,14 +541,24 @@ EOF
 install_vector() {
     local current_version
     current_version="$(version_from_bin "${BIN_DIR}/vector" '[0-9]+\.[0-9]+\.[0-9]+')"
-    if [[ "${current_version}" != "${VECTOR_VERSION}" ]]; then
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        if ! command -v brew >/dev/null 2>&1; then
+            log_error "Homebrew is required to install Vector on macOS."
+            exit 1
+        fi
+        log_info "Installing Vector via Homebrew for macOS (${ARCH_VECTOR})"
+        brew list vector >/dev/null 2>&1 || brew install vector
+        vector_prefix="$(brew --prefix vector)"
+        install -m 0755 "${vector_prefix}/bin/vector" "${BIN_DIR}/vector"
+    elif [[ "${current_version}" != "${VECTOR_VERSION}" ]]; then
         log_info "Installing Vector v${VECTOR_VERSION} (current: ${current_version:-none})"
         download_tar_binary \
-            "https://packages.timber.io/vector/${VECTOR_VERSION}/vector-${VECTOR_VERSION}-${ARCH_VECTOR}-apple-darwin.tar.gz" \
+            "https://packages.timber.io/vector/${VECTOR_VERSION}/vector-${VECTOR_VERSION}-${ARCH_VECTOR}-unknown-linux-gnu.tar.gz" \
             "vector.tar.gz" \
-            "vector-${ARCH_VECTOR}-apple-darwin/bin/vector" \
+            "vector-${ARCH_VECTOR}-unknown-linux-gnu/bin/vector" \
             "${BIN_DIR}/vector"
-    else
+    fi
+    if [[ "${OS_NAME}" == "Linux" && "${current_version}" == "${VECTOR_VERSION}" ]]; then
         log_info "Vector already at desired version ${VECTOR_VERSION}"
     fi
 
