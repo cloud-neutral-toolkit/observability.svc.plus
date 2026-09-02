@@ -414,6 +414,12 @@ WantedBy=multi-user.target"
 }
 
 install_process_exporter() {
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        # ncabatoff/process-exporter publishes Linux-only release artifacts.
+        # Do not fail the macOS install; node_exporter still supplies host metrics.
+        log_warn "Process Exporter has no upstream macOS release; skipping it."
+        return 0
+    fi
     local current_version
     current_version="$(version_from_bin "${BIN_DIR}/process-exporter" '[0-9]+\.[0-9]+\.[0-9]+')"
     if [[ "${current_version}" != "${PROCESS_EXPORTER_VERSION}" ]]; then
@@ -465,6 +471,9 @@ sources:
       - http://127.0.0.1:9100/metrics
     scrape_interval_secs: 15
 
+EOF
+    if [[ "${OS_NAME}" != "Darwin" ]]; then
+        cat >> "${CONFIG_DIR}/vector.yaml" <<'EOF'
   process_exporter:
     type: prometheus_scrape
     endpoints:
@@ -472,6 +481,7 @@ sources:
     scrape_interval_secs: 15
 
 EOF
+    fi
     if [[ "${OS_NAME}" == "Linux" ]]; then
         cat >> "${CONFIG_DIR}/vector.yaml" <<'EOF'
   journald:
@@ -492,7 +502,7 @@ EOF
 transforms:
   add_metric_labels:
     type: remap
-    inputs: ["node_exporter", "process_exporter"]
+    inputs: ["node_exporter"$( [[ "${OS_NAME}" != "Darwin" ]] && printf ', "process_exporter"' )]
     source: |
       .tags.host = get_hostname!()
       .tags.job = "node"
