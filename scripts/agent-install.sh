@@ -672,7 +672,9 @@ uninstall_agent() {
 verify_installation() {
     sleep 2
     log_info "Verifying services..."
-    for service in node_exporter process_exporter vector; do
+    services_to_verify="node_exporter vector"
+    [[ "${OS_NAME}" != "Darwin" ]] && services_to_verify="node_exporter process_exporter vector"
+    for service in ${services_to_verify}; do
         if [[ "${OS_NAME}" == "Darwin" ]]; then
             if launchctl print "gui/$(id -u)/plus.svc.observability.${service}" >/dev/null 2>&1; then
                 log_success "Service '${service}' is running"
