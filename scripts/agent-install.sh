@@ -2,7 +2,14 @@
 set -euo pipefail
 
 DEFAULT_ENDPOINT="https://observability.svc.plus/ingest/otlp"
-INSTALL_DIR="/opt/observability"
+OS_NAME="$(uname -s)"
+if [[ "${OS_NAME}" == "Darwin" ]]; then
+    INSTALL_DIR="${HOME}/Library/Application Support/observability"
+    OS_ARTIFACT="darwin"
+else
+    INSTALL_DIR="/opt/observability"
+    OS_ARTIFACT="linux"
+fi
 BIN_DIR="${INSTALL_DIR}/bin"
 CONFIG_DIR="${INSTALL_DIR}/config"
 DATA_DIR="${INSTALL_DIR}/data"
@@ -38,15 +45,10 @@ log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
 append_unique() {
     local value="$1"
-    local -n target_ref="$2"
+    local target_name="$2"
     [[ -z "${value}" ]] && return 0
-    local existing
-    for existing in "${target_ref[@]:-}"; do
-        if [[ "${existing}" == "${value}" ]]; then
-            return 0
-        fi
-    done
-    target_ref+=("${value}")
+    # Keep this compatible with the Bash 3.2 shipped by macOS.
+    eval "${target_name}+=(\"${value}\")"
 }
 
 collect_local_ipv4s() {
@@ -65,7 +67,7 @@ collect_local_ipv4s() {
         done < <(ip -o -4 addr show scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1)
     fi
 
-    printf '%s\n' "${ips[@]}"
+    printf '%s\n' "${ips[@]:-}"
 }
 
 resolve_ipv4s() {
@@ -85,7 +87,7 @@ resolve_ipv4s() {
         done < <(host "${host}" 2>/dev/null | awk '/has address/ {print $4}')
     fi
 
-    printf '%s\n' "${ips[@]}"
+    printf '%s\n' "${ips[@]:-}"
 }
 
 extract_host_from_url() {
@@ -285,8 +287,10 @@ if endpoint_targets_local_host "${collector_host}"; then
 fi
 
 if [[ $EUID -ne 0 ]]; then
-    log_error "This script must be run as root"
-    exit 1
+    if [[ "${OS_NAME}" != "Darwin" ]]; then
+        log_error "This script must be run as root"
+        exit 1
+    fi
 fi
 
 ARCH="$(uname -m)"
@@ -335,6 +339,33 @@ write_unit_if_changed() {
     rm -f "${tmp_file}"
 }
 
+install_launchd_service() {
+    local service_name="$1"
+    local executable="$2"
+    shift 2
+    local plist_dir="${HOME}/Library/LaunchAgents"
+    local plist_path="${plist_dir}/plus.svc.observability.${service_name}.plist"
+    local log_dir="${HOME}/Library/Logs/observability"
+    mkdir -p "${plist_dir}" "${log_dir}"
+    cat > "${plist_path}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>plus.svc.observability.${service_name}</string>
+  <key>ProgramArguments</key><array><string>${executable}</string>
+EOF
+    for arg in "$@"; do printf '  <string>%s</string>\n' "$arg" >> "${plist_path}"; done
+    cat >> "${plist_path}" <<EOF
+  </array>
+  <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>${log_dir}/${service_name}.log</string>
+  <key>StandardErrorPath</key><string>${log_dir}/${service_name}.err.log</string>
+</dict></plist>
+EOF
+    launchctl bootout "gui/$(id -u)" "${plist_path}" >/dev/null 2>&1 || true
+    launchctl bootstrap "gui/$(id -u)" "${plist_path}"
+}
+
 download_tar_binary() {
     local url="$1"
     local archive_name="$2"
@@ -354,14 +385,18 @@ install_node_exporter() {
     if [[ "${current_version}" != "${NODE_EXPORTER_VERSION}" ]]; then
         log_info "Installing Node Exporter v${NODE_EXPORTER_VERSION} (current: ${current_version:-none})"
         download_tar_binary \
-            "https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.linux-${ARCH_NODE}.tar.gz" \
+            "https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPORTER_VERSION}/node_exporter-${NODE_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_NODE}.tar.gz" \
             "node_exporter.tar.gz" \
-            "node_exporter-${NODE_EXPORTER_VERSION}.linux-${ARCH_NODE}/node_exporter" \
+            "node_exporter-${NODE_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_NODE}/node_exporter" \
             "${BIN_DIR}/node_exporter"
     else
         log_info "Node Exporter already at desired version ${NODE_EXPORTER_VERSION}"
     fi
 
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        install_launchd_service "node_exporter" "${BIN_DIR}/node_exporter"
+        return
+    fi
     write_unit_if_changed "node_exporter" "[Unit]
 Description=Node Exporter
 After=network.target
@@ -384,9 +419,9 @@ install_process_exporter() {
     if [[ "${current_version}" != "${PROCESS_EXPORTER_VERSION}" ]]; then
         log_info "Installing Process Exporter v${PROCESS_EXPORTER_VERSION} (current: ${current_version:-none})"
         download_tar_binary \
-            "https://github.com/ncabatoff/process-exporter/releases/download/v${PROCESS_EXPORTER_VERSION}/process-exporter-${PROCESS_EXPORTER_VERSION}.linux-${ARCH_PROCESS}.tar.gz" \
+            "https://github.com/ncabatoff/process-exporter/releases/download/v${PROCESS_EXPORTER_VERSION}/process-exporter-${PROCESS_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_PROCESS}.tar.gz" \
             "process_exporter.tar.gz" \
-            "process-exporter-${PROCESS_EXPORTER_VERSION}.linux-${ARCH_PROCESS}/process-exporter" \
+            "process-exporter-${PROCESS_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_PROCESS}/process-exporter" \
             "${BIN_DIR}/process-exporter"
     else
         log_info "Process Exporter already at desired version ${PROCESS_EXPORTER_VERSION}"
@@ -399,6 +434,10 @@ process_names:
       - '.+'
 EOF
 
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        install_launchd_service "process_exporter" "${BIN_DIR}/process-exporter" "-config.path" "${CONFIG_DIR}/process-config.yaml"
+        return
+    fi
     write_unit_if_changed "process_exporter" "[Unit]
 Description=Process Exporter
 After=network.target
@@ -432,9 +471,15 @@ sources:
       - http://127.0.0.1:9256/metrics
     scrape_interval_secs: 15
 
+EOF
+    if [[ "${OS_NAME}" == "Linux" ]]; then
+        cat >> "${CONFIG_DIR}/vector.yaml" <<'EOF'
   journald:
     type: journald
     current_boot_only: true
+EOF
+    fi
+    cat >> "${CONFIG_DIR}/vector.yaml" <<EOF
 
   syslog_files:
     type: file
@@ -455,7 +500,7 @@ transforms:
 
   add_log_labels:
     type: remap
-    inputs: ["journald", "syslog_files"]
+    inputs: ["syslog_files"$( [[ "${OS_NAME}" == "Linux" ]] && printf ', "journald"' )]
     source: |
       .host = get_hostname!()
       .job = "node"
@@ -490,9 +535,9 @@ install_vector() {
     if [[ "${current_version}" != "${VECTOR_VERSION}" ]]; then
         log_info "Installing Vector v${VECTOR_VERSION} (current: ${current_version:-none})"
         download_tar_binary \
-            "https://packages.timber.io/vector/${VECTOR_VERSION}/vector-${VECTOR_VERSION}-${ARCH_VECTOR}-unknown-linux-gnu.tar.gz" \
+            "https://packages.timber.io/vector/${VECTOR_VERSION}/vector-${VECTOR_VERSION}-${ARCH_VECTOR}-apple-darwin.tar.gz" \
             "vector.tar.gz" \
-            "vector-${ARCH_VECTOR}-unknown-linux-gnu/bin/vector" \
+            "vector-${ARCH_VECTOR}-apple-darwin/bin/vector" \
             "${BIN_DIR}/vector"
     else
         log_info "Vector already at desired version ${VECTOR_VERSION}"
@@ -505,6 +550,10 @@ install_vector() {
         exit 1
     fi
 
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        install_launchd_service "vector" "${BIN_DIR}/vector" "--config" "${CONFIG_DIR}/vector.yaml"
+        return
+    fi
     write_unit_if_changed "vector" "[Unit]
 Description=Vector
 Documentation=https://vector.dev
@@ -529,6 +578,10 @@ WantedBy=multi-user.target"
 install_deepflow_agent() {
     if [[ "${DEEPFLOW_AGENT_ENABLED}" != "true" ]]; then
         return 0
+    fi
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        log_error "DeepFlow agent is not supported by this macOS installer; use the Linux/Kubernetes playbook for DeepFlow."
+        exit 1
     fi
 
     if [[ -z "${DEEPFLOW_GRPC_ENDPOINT}" ]]; then
@@ -590,11 +643,18 @@ uninstall_agent() {
         return 0
     }
 
-    for svc in deepflow_agent vector process_exporter node_exporter; do
-        systemctl disable --now "${svc}" >/dev/null 2>&1 || true
-        rm -f "/etc/systemd/system/${svc}.service"
-    done
-    systemctl daemon-reload
+    if [[ "${OS_NAME}" == "Darwin" ]]; then
+        for svc in deepflow_agent vector process_exporter node_exporter; do
+            launchctl bootout "gui/$(id -u)" "${HOME}/Library/LaunchAgents/plus.svc.observability.${svc}.plist" >/dev/null 2>&1 || true
+            rm -f "${HOME}/Library/LaunchAgents/plus.svc.observability.${svc}.plist"
+        done
+    else
+        for svc in deepflow_agent vector process_exporter node_exporter; do
+            systemctl disable --now "${svc}" >/dev/null 2>&1 || true
+            rm -f "/etc/systemd/system/${svc}.service"
+        done
+        systemctl daemon-reload
+    fi
     rm -f "${BIN_DIR}/run-deepflow-agent.sh" "${CONFIG_DIR}/deepflow-agent.env"
     rm -rf "${INSTALL_DIR}"
     log_success "Agent components uninstalled."
@@ -604,7 +664,13 @@ verify_installation() {
     sleep 2
     log_info "Verifying services..."
     for service in node_exporter process_exporter vector; do
-        if systemctl is-active --quiet "${service}"; then
+        if [[ "${OS_NAME}" == "Darwin" ]]; then
+            if launchctl print "gui/$(id -u)/plus.svc.observability.${service}" >/dev/null 2>&1; then
+                log_success "Service '${service}' is running"
+            else
+                log_fail "Service '${service}' is NOT running"
+            fi
+        elif systemctl is-active --quiet "${service}"; then
             log_success "Service '${service}' is running"
         else
             log_fail "Service '${service}' is NOT running"
@@ -625,7 +691,7 @@ verify_installation() {
         local port name
         port="${item%% *}"
         name="${item#* }"
-        if ss -tuln | grep -q ":${port} "; then
+        if (command -v ss >/dev/null 2>&1 && ss -tuln | grep -q ":${port} ") || (command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1); then
             log_success "Port ${port} (${name}) is listening"
         else
             log_fail "Port ${port} (${name}) is NOT listening"
