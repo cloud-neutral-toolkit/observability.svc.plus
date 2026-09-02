@@ -16,6 +16,7 @@ DATA_DIR="${INSTALL_DIR}/data"
 
 NODE_EXPORTER_VERSION="1.7.0"
 PROCESS_EXPORTER_VERSION="0.7.10"
+PROCESS_EXPORTER_REPOSITORY="ncabatoff/process-exporter"
 VECTOR_VERSION="0.36.0"
 
 ACTION="deploy"
@@ -415,17 +416,14 @@ WantedBy=multi-user.target"
 
 install_process_exporter() {
     if [[ "${OS_NAME}" == "Darwin" ]]; then
-        # ncabatoff/process-exporter publishes Linux-only release artifacts.
-        # Do not fail the macOS install; node_exporter still supplies host metrics.
-        log_warn "Process Exporter has no upstream macOS release; skipping it."
-        return 0
+        PROCESS_EXPORTER_REPOSITORY="ai-workspace-infra/process-exporter"
     fi
     local current_version
     current_version="$(version_from_bin "${BIN_DIR}/process-exporter" '[0-9]+\.[0-9]+\.[0-9]+')"
     if [[ "${current_version}" != "${PROCESS_EXPORTER_VERSION}" ]]; then
         log_info "Installing Process Exporter v${PROCESS_EXPORTER_VERSION} (current: ${current_version:-none})"
         download_tar_binary \
-            "https://github.com/ncabatoff/process-exporter/releases/download/v${PROCESS_EXPORTER_VERSION}/process-exporter-${PROCESS_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_PROCESS}.tar.gz" \
+            "https://github.com/${PROCESS_EXPORTER_REPOSITORY}/releases/download/v${PROCESS_EXPORTER_VERSION}/process-exporter-${PROCESS_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_PROCESS}.tar.gz" \
             "process_exporter.tar.gz" \
             "process-exporter-${PROCESS_EXPORTER_VERSION}.${OS_ARTIFACT}-${ARCH_PROCESS}/process-exporter" \
             "${BIN_DIR}/process-exporter"
