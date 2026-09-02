@@ -416,7 +416,8 @@ WantedBy=multi-user.target"
 
 install_process_exporter() {
     if [[ "${OS_NAME}" == "Darwin" ]]; then
-        PROCESS_EXPORTER_REPOSITORY="ai-workspace-infra/process-exporter"
+        log_warn "Process Exporter macOS archive is not available yet; skipping it."
+        return 0
     fi
     local current_version
     current_version="$(version_from_bin "${BIN_DIR}/process-exporter" '[0-9]+\.[0-9]+\.[0-9]+')"
