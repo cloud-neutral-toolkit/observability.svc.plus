@@ -118,6 +118,18 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability
 >   - logs endpoint: `/ingest/logs/insert`
 > - The script automatically verifies installation after setup.
 
+macOS is supported as a user-level installation. It uses `launchd` and writes
+under `~/Library/Application Support/observability`, so `sudo` is not needed:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/observability.svc.plus/main/scripts/agent-install.sh \
+  | bash -s -- --endpoint https://observability.svc.plus/ingest/otlp -y
+```
+
+The macOS installer collects Node Exporter and Process Exporter metrics plus
+`/var/log` files, and sends them to the hosted VictoriaMetrics/VictoriaLogs
+ingest endpoints. DeepFlow remains Linux/Kubernetes-only.
+
 ### Optional: DeepFlow Agent on Client
 
 If you have deployed DeepFlow with `deepflow.yml`, you can install `deepflow-agent` on client nodes via the same script:
